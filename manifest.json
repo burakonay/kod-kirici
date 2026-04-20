@@ -1,0 +1,24 @@
+{
+  "name": "Kod Kırıcı",
+  "short_name": "Kod Kırıcı",
+  "description": "Türkçe kelime tahmin oyunu",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#01012b",
+  "theme_color": "#01012b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
