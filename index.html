@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>KOD KIRICI</title>
 
   <!-- PWA / iOS Ana Ekrana Ekle -->
@@ -38,8 +38,14 @@
       --tile-gap:    6px;
     }
 
-    html, body {
+    html {
       height: 100%;
+    }
+
+    body {
+      height: 100%;
+      position: fixed;
+      width: 100%;
       overflow: hidden;
       background-color: var(--bg-deep);
       background-image:
@@ -430,8 +436,9 @@
       padding: 16px 12px 200px;
       gap: 16px;
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
 
     /* ── GAME BOARD ── */
@@ -813,7 +820,7 @@
       align-items: center;
       gap: 7px;
       width: 100%;
-      padding: 8px 6px 2px;
+      padding: 8px 6px max(2px, env(safe-area-inset-bottom));
       background: var(--bg-deep);
       border-top: 1px solid rgba(5,217,232,0.15);
     }
@@ -859,6 +866,21 @@
       flex: 1.8;
       font-size: 0.62rem;
       letter-spacing: 0.5px;
+    }
+
+    .key[data-key="enter"] {
+      background: #ff2a6d;
+      border-color: #ff2a6d;
+      color: #fff;
+      font-size: 0.52rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px rgba(255,42,109,0.4);
+    }
+    .key[data-key="enter"]:active { opacity: 0.6; }
+    body.light .key[data-key="enter"] {
+      background: #ff2a6d;
+      border-color: #ff2a6d;
+      color: #fff;
     }
 
     .key.correct {
