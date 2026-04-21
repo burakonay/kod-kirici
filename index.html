@@ -1959,6 +1959,7 @@
     "özlem":"💭 Uzaktakilere duyulur",
     "merak":"💭 Öldürmez ama bitmez",
     "moral":"💭 Varken uçarsın, yokken çökersin",
+    "gömüt":"⚰️ Mezarın bir diğer adı — toprağın altındaki son adres",
     "zafer":"🏆 Sonunda gelen güzellik",
     "başarı":"🏆 Emek ister, gelince güzel",
     "fırsat":"💭 Bir kez gelir, yakala",
@@ -2589,8 +2590,16 @@
     updateCoinDisplay();
     updateHintButton();
     const cat = WORD_CATS[STATE.targetWord];
-    const msg = cat ? '💡 İPUCU: ' + cat : '💡 İPUCU: ' + STATE.wordLen + ' harfli Türkçe kelime';
-    showToast(msg);
+    if (!cat) {
+      STATE.coins += HINT_COST; // iade et
+      STATE.hintUsed = false;
+      saveCoins();
+      updateCoinDisplay();
+      updateHintButton();
+      showToast('💡 Bu kelime için ipucu bulunamadı');
+      return;
+    }
+    showToast('💡 İPUCU: ' + cat);
   }
 
   let _adInterval = null;
