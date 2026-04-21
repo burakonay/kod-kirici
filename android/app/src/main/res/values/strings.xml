@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kod Kirici</string>
+    <string name="title_activity_main">Kod Kirici</string>
+    <string name="package_name">com.kodkirici.app</string>
+    <string name="custom_url_scheme">com.kodkirici.app</string>
+</resources>

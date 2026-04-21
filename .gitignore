@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Android build outputs (too large for git)
+android/app/build/
+android/.gradle/
+android/build/
+android/capacitor-cordova-android-plugins/build/
+
+# Claude session data
+.claude/
+
+# Local config (contains absolute paths)
+android/local.properties
