@@ -3041,9 +3041,10 @@
     SFX.stopHeartbeat();
     if (won) {
       // Kelime başına bonus: az tahminde daha çok puan (6.→10p, 1.→60p)
+      const attemptCount = STATE.currentRow;
+      let gained = 0;
       if (STATE.isCompetitionMode) {
-        const attemptCount = STATE.currentRow;
-        const gained = Math.max(1, 7 - attemptCount) * 10;
+        gained = Math.max(1, 7 - attemptCount) * 10;
         STATE.score += gained;
         saveStats();
         updateScoreDisplay();
@@ -3064,7 +3065,7 @@
       SFX.applause(2.8, 0.45);
       title.textContent = 'ŞİFRE KIRILDI!';
       title.className = 'win';
-      wordEl.textContent = `+${gained} PUAN`;
+      wordEl.textContent = STATE.isCompetitionMode ? `+${gained} PUAN` : turkishUpper(STATE.targetWord);
       descEl.textContent = `${attemptCount}. TAHMİNDE`;
     } else {
       // Kaybedildi — oyun biter
