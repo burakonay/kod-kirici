@@ -16,6 +16,9 @@
   <!-- iOS ikon (192px PNG olarak oluşturacağız) -->
   <link rel="apple-touch-icon" href="icon.png">
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -233,7 +236,7 @@
     /* MOD SEKME */
     #mode-tabs {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       background: var(--ink-100);
       border-radius: var(--radius);
       padding: 4px;
@@ -242,14 +245,14 @@
     }
 
     .mode-tab {
-      padding: 10px 6px;
+      padding: 9px 2px;
       background: transparent;
       border: 1.5px solid transparent;
       color: var(--text-dim);
       font-family: var(--font-head);
-      font-size: 0.72rem;
+      font-size: 0.55rem;
       font-weight: 600;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       cursor: pointer;
       border-radius: var(--radius-sm);
       transition: all 150ms;
@@ -265,6 +268,25 @@
       border-color: var(--danger);
       color: var(--danger);
     }
+
+    .mode-tab.battle-tab.active {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Kapışma bilgi kutusu */
+    #battle-panel {
+      width: 100%;
+      background: var(--magenta-100);
+      border: 1.5px solid var(--danger);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      flex-direction: column;
+      gap: 10px;
+      display: none;
+    }
+
+    #battle-panel.visible { display: flex; }
 
     /* Yarisma bilgi kutusu */
     #comp-info {
@@ -487,42 +509,51 @@
       text-transform: uppercase;
     }
 
-    .setup-toggle-group {
+    /* Spinner (saat ayarı stili) */
+    .spin-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      align-items: center;
       justify-content: center;
+      gap: 12px;
       width: 100%;
     }
 
-    .setup-btn {
-      padding: 6px 10px;
-      min-width: 44px;
-      background: var(--surface);
+    .spin-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
       border: 1.5px solid var(--border);
-      color: var(--text-dim);
-      font-family: var(--font-head);
-      font-size: 0.68rem;
-      font-weight: 500;
-      letter-spacing: 1px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.05rem;
       cursor: pointer;
-      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
       transition: all 120ms;
+      flex-shrink: 0;
     }
 
-    .setup-btn:first-child {
-      width: 100%;
+    .spin-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .spin-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+    .spin-display {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 96px; gap: 3px;
     }
 
-    .setup-btn.active {
-      border-color: var(--primary);
+    .spin-val {
+      font-family: var(--font-head);
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+
+    .spin-sub {
+      font-family: var(--font-head);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
       color: var(--primary);
-      background: var(--cyan-100);
-    }
-
-    .setup-btn:hover:not(.active) {
-      border-color: var(--cyan-500);
-      color: var(--cyan-500);
+      min-height: 0.8rem;
     }
 
     .setup-divider {
@@ -1296,6 +1327,255 @@
       border-color: var(--primary);
       color: var(--primary);
     }
+
+    /* ── KAPIŞMA: OPPONENT STRIP ── */
+    #opponent-strip {
+      width: 100%;
+      max-width: 480px;
+      background: var(--magenta-100);
+      border-bottom: 1.5px solid var(--danger);
+      padding: 5px 12px 5px 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .opp-label {
+      font-family: var(--font-head);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--danger);
+      white-space: nowrap;
+    }
+
+    #opp-mini-board {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .opp-mini-row { display: flex; gap: 2px; }
+
+    .opp-mini-tile {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .opp-mini-tile.correct { background: var(--green-500); border-color: var(--green-600); }
+    .opp-mini-tile.present { background: var(--amber-500); border-color: var(--amber-600); }
+    .opp-mini-tile.absent  { background: var(--locked); border-color: var(--locked); }
+
+    #opp-status-text {
+      font-family: var(--font-head);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--danger);
+      white-space: nowrap;
+      min-width: 46px;
+      text-align: right;
+    }
+
+    /* ── KAPIŞMA: MATCHMAKING OVERLAY ── */
+    #battle-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(18% 0.045 262 / 0.88);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 450;
+    }
+
+    #battle-overlay.visible { display: flex; }
+
+    #battle-box {
+      background: var(--surface);
+      border: 1.5px solid var(--danger);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      max-width: 300px;
+      width: 88%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    #battle-spinner {
+      width: 52px;
+      height: 52px;
+      border: 3px solid var(--border);
+      border-top-color: var(--danger);
+      border-radius: 50%;
+      animation: battle-spin 0.7s linear infinite;
+    }
+
+    @keyframes battle-spin { to { transform: rotate(360deg); } }
+
+    #battle-found-icon {
+      font-size: 2.8rem;
+      animation: battle-pop 0.4s ease-out;
+    }
+
+    @keyframes battle-pop {
+      0%   { transform: scale(0.4); opacity: 0; }
+      70%  { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    #battle-title {
+      font-family: var(--font-head);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--danger);
+    }
+
+    #battle-subtitle {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      line-height: 1.5;
+    }
+
+    #battle-timer {
+      font-family: var(--font-head);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--amber-500);
+    }
+
+    #btn-cancel-battle {
+      padding: 8px 20px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-head);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 150ms;
+    }
+
+    #btn-cancel-battle:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── KAPIŞMA BUTONU ── */
+    #btn-battle {
+      width: 100%;
+      padding: 12px 40px;
+      background: var(--magenta-100);
+      border: 1.5px solid var(--danger);
+      color: var(--danger);
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: all 150ms;
+    }
+
+    #btn-battle:hover { background: var(--danger); color: var(--ink-0); }
+
+    /* Sprint tab */
+    .mode-tab.sprint-tab.active { border-color: var(--amber-500); color: var(--amber-500); }
+
+    /* Sprint paneli */
+    #sprint-panel { width: 100%; display: none; flex-direction: column; align-items: center; gap: 12px; }
+    #sprint-panel.visible { display: flex; }
+
+    /* Tur geçiş overlay */
+    #round-overlay {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.88);
+      backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; z-index: 420;
+    }
+    #round-overlay.visible { display: flex; }
+
+    #round-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 26px 28px; text-align: center;
+      max-width: 320px; width: 88%;
+      display: flex; flex-direction: column; align-items: center; gap: 11px;
+    }
+
+    #round-header { font-family: var(--font-head); font-size: 0.58rem; letter-spacing: 3px; color: var(--text-dim); }
+    #round-word { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; letter-spacing: 8px; color: var(--amber-500); }
+
+    .round-players { display: flex; gap: 14px; align-items: center; width: 100%; justify-content: center; }
+    .round-player { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .round-player-lbl { font-family: var(--font-head); font-size: 0.52rem; letter-spacing: 2px; color: var(--text-dim); }
+    .round-player-res { font-family: var(--font-head); font-size: 0.75rem; font-weight: 700; }
+    .round-player-res.won  { color: var(--green-500); }
+    .round-player-res.lost { color: var(--danger); }
+    #round-vs-sep { font-family: var(--font-head); font-size: 0.6rem; color: var(--text-dim); }
+
+    #round-winner-lbl { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; letter-spacing: 3px; }
+    #round-winner-lbl.win  { color: var(--green-500); }
+    #round-winner-lbl.lose { color: var(--danger); }
+    #round-winner-lbl.draw { color: var(--amber-500); }
+
+    #round-score-lbl  { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-dim); letter-spacing: 1px; }
+    #round-next-lbl   { font-family: var(--font-head); font-size: 0.58rem; letter-spacing: 2px; color: var(--primary); opacity: 0.8; }
+
+    /* Çark overlay */
+    #wheel-overlay {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.92);
+      backdrop-filter: blur(16px);
+      display: none; align-items: center; justify-content: center; z-index: 430;
+    }
+    #wheel-overlay.visible { display: flex; }
+
+    #wheel-box {
+      background: var(--surface); border: 1.5px solid var(--amber-500);
+      border-radius: 16px; padding: 30px 26px; text-align: center;
+      max-width: 300px; width: 88%;
+      display: flex; flex-direction: column; align-items: center; gap: 18px;
+    }
+
+    #wheel-title { font-family: var(--font-head); font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; color: var(--amber-500); }
+
+    #wheel-wrap { position: relative; width: 180px; height: 180px; margin-top: 10px; }
+
+    #wheel-el {
+      width: 180px; height: 180px; border-radius: 50%;
+      background: conic-gradient(
+        var(--cyan-500) 0deg 90deg,
+        var(--amber-500) 90deg 180deg,
+        var(--green-500) 180deg 270deg,
+        var(--danger) 270deg 360deg
+      );
+      border: 3px solid var(--surface);
+      transition: transform 4s cubic-bezier(0.05, 0.8, 0.05, 1);
+      position: relative;
+    }
+
+    .wheel-lbl {
+      position: absolute;
+      font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;
+      color: var(--ink-0); text-shadow: 0 1px 4px oklch(18% 0.045 262 / 0.6);
+      pointer-events: none;
+    }
+    .wheel-lbl[data-l="4"] { top: 14px; left: 50%; transform: translateX(-50%); }
+    .wheel-lbl[data-l="5"] { top: 50%; right: 12px; transform: translateY(-50%); }
+    .wheel-lbl[data-l="6"] { bottom: 14px; left: 50%; transform: translateX(-50%); }
+    .wheel-lbl[data-l="7"] { top: 50%; left: 12px; transform: translateY(-50%); }
+
+    #wheel-ptr { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 1.3rem; color: var(--amber-500); }
+    #wheel-result-lbl { font-family: var(--font-head); font-size: 0.92rem; font-weight: 700; letter-spacing: 3px; color: var(--amber-500); min-height: 1.4rem; }
   </style>
 </head>
 <body>
@@ -1310,6 +1590,12 @@
     </div>
     <button id="btn-settings" title="Ayarlar">⚙</button>
     <button id="btn-end-game" title="Oyunu bitir">■</button>
+  </div>
+
+  <div id="opponent-strip">
+    <span class="opp-label">⚔️ RAKİP</span>
+    <div id="opp-mini-board"></div>
+    <span id="opp-status-text">—</span>
   </div>
 
   <div id="joker-bar">
@@ -1405,6 +1691,8 @@
       <div id="mode-tabs">
         <button class="mode-tab active" id="tab-practice">🎯 DENEME</button>
         <button class="mode-tab comp-tab" id="tab-comp">🏆 YARIŞMA</button>
+        <button class="mode-tab battle-tab" id="tab-battle">⚔️ KAPIŞMA</button>
+        <button class="mode-tab sprint-tab" id="tab-sprint">🏃 SPRİNT</button>
       </div>
 
       <!-- DENEME PANELİ -->
@@ -1431,27 +1719,26 @@
         <hr class="setup-divider">
         <div class="setup-section">
           <div class="setup-label">TAHMİN HAKKI</div>
-          <div class="setup-toggle-group" id="attempts-group">
-            <button class="setup-btn active" data-attempts="ori">ORİJİNAL (6)</button>
-            <button class="setup-btn" data-attempts="3">3</button>
-            <button class="setup-btn" data-attempts="4">4</button>
-            <button class="setup-btn" data-attempts="5">5</button>
-            <button class="setup-btn" data-attempts="7">7</button>
-            <button class="setup-btn" data-attempts="8">8</button>
+          <div class="spin-row">
+            <button class="spin-btn" id="attempts-dec">&#8249;</button>
+            <div class="spin-display">
+              <div class="spin-val" id="attempts-val">6</div>
+              <div class="spin-sub" id="attempts-sub">ORİJİNAL</div>
+            </div>
+            <button class="spin-btn" id="attempts-inc">&#8250;</button>
           </div>
         </div>
         <div class="setup-section">
           <div class="setup-label">SÜRE</div>
-          <div class="setup-toggle-group" id="time-group">
-            <button class="setup-btn active" data-time="ori">ORİJİNAL</button>
-            <button class="setup-btn" data-time="60">1 DK</button>
-            <button class="setup-btn" data-time="120">2 DK</button>
-            <button class="setup-btn" data-time="180">3 DK</button>
-            <button class="setup-btn" data-time="300">5 DK</button>
-            <button class="setup-btn" data-time="inf">∞</button>
+          <div class="spin-row">
+            <button class="spin-btn" id="time-dec">&#8249;</button>
+            <div class="spin-display">
+              <div class="spin-val" id="time-val">—</div>
+              <div class="spin-sub" id="time-sub">ORİJİNAL</div>
+            </div>
+            <button class="spin-btn" id="time-inc">&#8250;</button>
           </div>
         </div>
-        <div id="setup-time-info">SÜRE: <strong id="setup-time-val">—</strong></div>
       </div>
 
       <!-- YARIŞMA PANELİ -->
@@ -1474,7 +1761,105 @@
         </div>
       </div>
 
+      <!-- KAPIŞMA PANELİ -->
+      <div id="battle-panel">
+        <div class="comp-info-row">
+          <span>TURLAR</span>
+          <span class="comp-info-val" style="color:var(--danger)">4 · 5 · 6 · 7 HARFLİ</span>
+        </div>
+        <div class="comp-info-row">
+          <span>TAHMİN HAKKI</span>
+          <span class="comp-info-val" style="color:var(--danger)">6 (sabit)</span>
+        </div>
+        <div class="comp-info-row">
+          <span>BERABERLIKTE</span>
+          <span class="comp-info-val" style="color:var(--danger)">ÇARK DÖNER 🎯</span>
+        </div>
+        <div class="comp-info-row" style="margin-top:4px">
+          <span class="comp-badge" style="color:var(--danger);border-color:var(--danger);background:transparent">⚔️ OTOMATİK EŞLEŞTİRME</span>
+        </div>
+      </div>
+
+      <!-- SPRİNT PANELİ -->
+      <div id="sprint-panel">
+        <div class="setup-label" style="width:100%;text-align:left;padding-left:2px;margin-bottom:-8px">HARF SAYISI SEÇ</div>
+        <div class="length-toggle-group">
+          <button class="length-btn sprint-len-btn" data-slen="4">
+            <span class="len-num">4</span>
+            <span class="len-label">HARFLİ</span>
+          </button>
+          <button class="length-btn sprint-len-btn" data-slen="5">
+            <span class="len-num">5</span>
+            <span class="len-label">HARFLİ</span>
+          </button>
+          <button class="length-btn sprint-len-btn" data-slen="6">
+            <span class="len-num">6</span>
+            <span class="len-label">HARFLİ</span>
+          </button>
+          <button class="length-btn sprint-len-btn" data-slen="7">
+            <span class="len-num">7</span>
+            <span class="len-label">HARFLİ</span>
+          </button>
+        </div>
+        <div class="comp-info-row" style="margin-top:6px">
+          <span>HER UZUNLUK</span>
+          <span class="comp-info-val" style="color:var(--amber-500)">5 DAKİKA</span>
+        </div>
+        <div class="comp-info-row">
+          <span class="comp-badge" style="color:var(--amber-500);border-color:var(--amber-500);background:transparent">🏃 PUANLAMA YOK — HIZLILIK ESASI</span>
+        </div>
+      </div>
+
       <button id="btn-start-game" disabled>BAŞLAT</button>
+    </div>
+  </div>
+
+  <div id="battle-overlay">
+    <div id="battle-box">
+      <div id="battle-spinner"></div>
+      <div id="battle-title">RAKİP ARANIYOR...</div>
+      <div id="battle-subtitle">Kapışmak isteyen biri bekleniyor</div>
+      <div id="battle-timer">60</div>
+      <button id="btn-cancel-battle">İPTAL</button>
+    </div>
+  </div>
+
+  <!-- TUR SONU OVERLAY -->
+  <div id="round-overlay">
+    <div id="round-box">
+      <div id="round-header">TUR SONUCU</div>
+      <div id="round-word"></div>
+      <div class="round-players">
+        <div class="round-player">
+          <div class="round-player-lbl">SEN</div>
+          <div class="round-player-res" id="round-my-res">—</div>
+        </div>
+        <div id="round-vs-sep">VS</div>
+        <div class="round-player">
+          <div class="round-player-lbl">RAKİP</div>
+          <div class="round-player-res" id="round-opp-res">—</div>
+        </div>
+      </div>
+      <div id="round-winner-lbl"></div>
+      <div id="round-score-lbl"></div>
+      <div id="round-next-lbl"></div>
+    </div>
+  </div>
+
+  <!-- ÇARK OVERLAY -->
+  <div id="wheel-overlay">
+    <div id="wheel-box">
+      <div id="wheel-title">BERABERE! ÇARK DÖNÜYOR...</div>
+      <div id="wheel-wrap">
+        <div id="wheel-ptr">▼</div>
+        <div id="wheel-el">
+          <span class="wheel-lbl" data-l="4">4</span>
+          <span class="wheel-lbl" data-l="5">5</span>
+          <span class="wheel-lbl" data-l="6">6</span>
+          <span class="wheel-lbl" data-l="7">7</span>
+        </div>
+      </div>
+      <div id="wheel-result-lbl"></div>
     </div>
   </div>
 
@@ -2604,12 +2989,12 @@
     }
   }
 
-  function initRound() {
+  function initRound(forcedWord) {
     SFX.stopHeartbeat();
     // Sıradaki uzunluğa ait havuzdan kelime seç
     const targetLen = ACTIVE_LENGTHS[STATE.currentLengthIdx];
     const pool = targetLen === 4 ? WORDS4 : targetLen === 5 ? WORDS5 : targetLen === 6 ? WORDS6 : WORDS7;
-    STATE.targetWord = pool[Math.floor(Math.random() * pool.length)];
+    STATE.targetWord = forcedWord || pool[Math.floor(Math.random() * pool.length)];
     STATE.wordLen = [...STATE.targetWord].length;
     document.getElementById('subtitle').textContent = STATE.wordLen + ' HARFLİ TÜRKÇE KELİME';
     STATE.guesses = [];
@@ -3093,6 +3478,7 @@
       awardTilePoints(tileStates, guessChars, row);
 
       STATE.guesses.push(guess);
+      if (STATE.isBattleMode) syncMyBoard(false, false);
       STATE.currentRow++;
       STATE.currentInput = Array(len).fill(null);
       STATE.revealedPositions = [];
@@ -3184,8 +3570,20 @@
   // OYUN SONU
   // ═══════════════════════════════════════════════════
   function endGame(won) {
+    if (STATE.isSprintMode) {
+      handleSprintWordEnd(won);
+      return;
+    }
+
     STATE.gameOver = true;
     STATE.gameWon = won;
+
+    if (STATE.isBattleMode) {
+      SFX.stopHeartbeat();
+      syncMyBoard(won, true);
+      onMyRoundComplete(won);
+      return;
+    }
 
     const overlay = document.getElementById('screen-overlay');
     const title = document.getElementById('overlay-title');
@@ -3360,6 +3758,8 @@
     STATE.canContinue = false;
     STATE.timerPaused = false;
     if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
+    if (STATE.isBattleMode) cleanupBattle();
+    if (STATE.isSprintMode) { STATE.isSprintMode = false; if (SPRINT.timerInterval) clearInterval(SPRINT.timerInterval); }
     hideOverlay();
     showSetup();
   });
@@ -3402,9 +3802,10 @@
   // SETUP OVERLAY
   // ═══════════════════════════════════════════════════
   let selectedLengths = new Set();
+  let sprintSelectedLengths = new Set();
   let customAttempts  = null;   // null → ORİJİNAL (6)
   let customTime      = null;   // null → ORİJİNAL, Infinity → sınırsız
-  let currentSetupMode = 'practice'; // 'practice' | 'competition'
+  let currentSetupMode = 'practice'; // 'practice' | 'competition' | 'battle' | 'sprint'
 
   const COMP_LENGTHS = [4, 5, 6, 7];
 
@@ -3416,11 +3817,22 @@
 
   function updateSetupUI() {
     const startBtn = document.getElementById('btn-start-game');
-    const timeVal  = document.getElementById('setup-time-val');
     if (currentSetupMode === 'competition') {
       startBtn.disabled = false;
+      startBtn.textContent = 'BAŞLAT';
       return;
     }
+    if (currentSetupMode === 'battle') {
+      startBtn.disabled = false;
+      startBtn.textContent = '⚔️ KAPIŞMA BAŞLAT';
+      return;
+    }
+    if (currentSetupMode === 'sprint') {
+      startBtn.disabled = sprintSelectedLengths.size === 0;
+      startBtn.textContent = '🏃 SPRİNT BAŞLAT';
+      return;
+    }
+    startBtn.textContent = 'BAŞLAT';
     // practice mode
     if (selectedLengths.size === 0) {
       startBtn.disabled = true;
@@ -3428,11 +3840,9 @@
       return;
     }
     startBtn.disabled = false;
-    if (customTime === Infinity) {
-      timeVal.textContent = '∞';
-    } else {
-      const secs = (customTime !== null) ? customTime : calcSeconds([...selectedLengths]);
-      timeVal.textContent = secsToText(secs);
+    // ORI modunda süre etiketini yenile (uzunluk değişince günceller)
+    if (timeCustomSecs === null) {
+      document.getElementById('time-val').textContent = timeLabel(null);
     }
   }
 
@@ -3440,8 +3850,12 @@
     currentSetupMode = mode;
     document.getElementById('tab-practice').classList.toggle('active', mode === 'practice');
     document.getElementById('tab-comp').classList.toggle('active', mode === 'competition');
-    document.getElementById('practice-panel').classList.toggle('hidden', mode === 'competition');
+    document.getElementById('tab-battle').classList.toggle('active', mode === 'battle');
+    document.getElementById('tab-sprint').classList.toggle('active', mode === 'sprint');
+    document.getElementById('practice-panel').classList.toggle('hidden', mode !== 'practice');
     document.getElementById('comp-info').classList.toggle('visible', mode === 'competition');
+    document.getElementById('battle-panel').classList.toggle('visible', mode === 'battle');
+    document.getElementById('sprint-panel').classList.toggle('visible', mode === 'sprint');
 
     if (mode === 'competition') {
       const secs = calcSeconds(COMP_LENGTHS);
@@ -3452,6 +3866,8 @@
 
   document.getElementById('tab-practice').addEventListener('click', () => switchSetupMode('practice'));
   document.getElementById('tab-comp').addEventListener('click', () => switchSetupMode('competition'));
+  document.getElementById('tab-battle').addEventListener('click', () => switchSetupMode('battle'));
+  document.getElementById('tab-sprint').addEventListener('click', () => switchSetupMode('sprint'));
 
   document.querySelectorAll('.length-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3467,29 +3883,123 @@
     });
   });
 
-  document.getElementById('attempts-group').addEventListener('click', e => {
-    const btn = e.target.closest('.setup-btn');
-    if (!btn) return;
-    document.querySelectorAll('#attempts-group .setup-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const val = btn.dataset.attempts;
-    customAttempts = (val === 'ori') ? null : parseInt(val);
+  document.querySelectorAll('.sprint-len-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const len = parseInt(btn.dataset.slen);
+      sprintSelectedLengths.clear();
+      document.querySelectorAll('.sprint-len-btn').forEach(b => b.classList.remove('active'));
+      sprintSelectedLengths.add(len);
+      btn.classList.add('active');
+      updateSetupUI();
+    });
   });
 
-  document.getElementById('time-group').addEventListener('click', e => {
-    const btn = e.target.closest('.setup-btn');
-    if (!btn) return;
-    document.querySelectorAll('#time-group .setup-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const val = btn.dataset.time;
-    customTime = (val === 'ori') ? null : (val === 'inf') ? Infinity : parseInt(val);
-    updateSetupUI();
+  // Spinner: Tahmin Hakkı  [3,4,5,6,7,8]  index 3 = orijinal (6)
+  const ATTEMPT_STEPS = [3, 4, 5, 6, 7, 8];
+  const ATTEMPT_ORI_IDX = 3; // 6
+  let attemptIdx = ATTEMPT_ORI_IDX;
+
+  function renderAttemptSpinner() {
+    const val = ATTEMPT_STEPS[attemptIdx];
+    document.getElementById('attempts-val').textContent = val;
+    document.getElementById('attempts-sub').textContent = attemptIdx === ATTEMPT_ORI_IDX ? 'ORİJİNAL' : 'TAHMİN';
+    document.getElementById('attempts-dec').disabled = attemptIdx === 0;
+    document.getElementById('attempts-inc').disabled = attemptIdx === ATTEMPT_STEPS.length - 1;
+    customAttempts = attemptIdx === ATTEMPT_ORI_IDX ? null : val;
+  }
+
+  document.getElementById('attempts-dec').addEventListener('click', () => {
+    if (attemptIdx > 0) { attemptIdx--; renderAttemptSpinner(); }
   });
+  document.getElementById('attempts-inc').addEventListener('click', () => {
+    if (attemptIdx < ATTEMPT_STEPS.length - 1) { attemptIdx++; renderAttemptSpinner(); }
+  });
+
+  // Spinner: Süre — serbest (30s adım, ORI + 0:30..30:00 + ∞)
+  // timeCustomSecs: null=ORI, Infinity=∞, number=saniye
+  let timeCustomSecs = null; // null = ORI
+
+  const TIME_STEP = 30;
+  const TIME_MIN  = 30;
+  const TIME_MAX  = 1800; // 30 dakika
+
+  function timeLabel(v) {
+    if (v === null) {
+      if (selectedLengths.size === 0) return '—';
+      const s = calcSeconds([...selectedLengths]);
+      const m = Math.floor(s / 60), r = s % 60;
+      return m + ':' + String(r).padStart(2, '0');
+    }
+    if (v === Infinity) return '∞';
+    const m = Math.floor(v / 60), s = v % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function timeSub(v) {
+    if (v === null) return 'ORİJİNAL';
+    if (v === Infinity) return 'LİMİTSİZ';
+    return 'DAKİKA';
+  }
+
+  function renderTimeSpinner() {
+    document.getElementById('time-val').textContent = timeLabel(timeCustomSecs);
+    document.getElementById('time-sub').textContent = timeSub(timeCustomSecs);
+    document.getElementById('time-dec').disabled = timeCustomSecs === null;
+    document.getElementById('time-inc').disabled = timeCustomSecs === Infinity;
+    customTime = timeCustomSecs;
+    updateSetupUI();
+  }
+
+  function timeStep(dir) {
+    if (dir > 0) {
+      if (timeCustomSecs === null) timeCustomSecs = TIME_MIN;
+      else if (timeCustomSecs === Infinity) return;
+      else if (timeCustomSecs >= TIME_MAX) timeCustomSecs = Infinity;
+      else timeCustomSecs += TIME_STEP;
+    } else {
+      if (timeCustomSecs === null) return;
+      if (timeCustomSecs === Infinity) timeCustomSecs = TIME_MAX;
+      else if (timeCustomSecs <= TIME_MIN) timeCustomSecs = null;
+      else timeCustomSecs -= TIME_STEP;
+    }
+    renderTimeSpinner();
+  }
+
+  // Tık + basılı tutunca hızlanan mantık
+  function makeHoldBtn(id, dir) {
+    const btn = document.getElementById(id);
+    let holdTimer = null, holdInterval = null;
+    function start() {
+      timeStep(dir);
+      holdTimer = setTimeout(() => {
+        holdInterval = setInterval(() => timeStep(dir), 80);
+      }, 400);
+    }
+    function stop() {
+      clearTimeout(holdTimer); clearInterval(holdInterval);
+      holdTimer = holdInterval = null;
+    }
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('touchstart', e => { e.preventDefault(); start(); }, { passive: false });
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
+    btn.addEventListener('touchend', stop);
+    btn.addEventListener('touchcancel', stop);
+  }
+
+  makeHoldBtn('time-dec', -1);
+  makeHoldBtn('time-inc', +1);
 
   document.getElementById('btn-start-game').addEventListener('click', () => {
     if (currentSetupMode === 'competition') {
       hideSetup();
       startGame(COMP_LENGTHS, true);
+    } else if (currentSetupMode === 'battle') {
+      startMatchmaking();
+    } else if (currentSetupMode === 'sprint') {
+      if (sprintSelectedLengths.size === 0) return;
+      hideSetup();
+      startSprint([...sprintSelectedLengths].sort((a, b) => a - b));
     } else {
       if (selectedLengths.size === 0) return;
       hideSetup();
@@ -3556,9 +4066,829 @@
     renderJokerBar();
     renderKeyboard();
     document.getElementById('timer-display').textContent = '--:--';
+    renderAttemptSpinner();
+    renderTimeSpinner();
     updateSetupUI();
     showSetup();
   });
+
+  // ═══════════════════════════════════════════════════
+  // FİREBASE & KAPIŞMA SİSTEMİ
+  // ═══════════════════════════════════════════════════
+
+  firebase.initializeApp({
+    apiKey: "AIzaSyB0ZjfmJ3Esnd_srUogF6spsFLnrA2YStk",
+    authDomain: "dilbaz-a802b.firebaseapp.com",
+    databaseURL: "https://dilbaz-a802b-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dilbaz-a802b",
+    storageBucket: "dilbaz-a802b.firebasestorage.app",
+    messagingSenderId: "886055952920",
+    appId: "1:886055952920:web:aab568b8de9b06131cd96d"
+  });
+  const db = firebase.database();
+
+  STATE.isBattleMode = false;
+  STATE.isSprintMode = false;
+
+  // ─── KAPIŞMA (çok-turlu 1v1) ───────────────────────────────────────────────
+  const BATTLE_LENGTHS = [4, 5, 6, 7];
+
+  const BATTLE = {
+    active: false,
+    playerId: null,
+    roomId: null,
+    isHost: false,
+    opponentId: null,
+    // words: {4: "kelime", 5: "kelime", 6: "kelime", 7: "kelime"}
+    words: {},
+    // rounds sonuçları: {4: {myWon, myRow, oppWon}, 5: {...}, ...}
+    rounds: {},
+    currentRoundIdx: 0,   // 0→len4, 1→len5, 2→len6, 3→len7
+    myRoundDone: false,
+    oppRoundDone: false,
+    oppRoundData: null,   // {won, row}
+    // Çark (beraberlik) turu
+    tiebreakerLen: null,
+    // Genel
+    searchTimeout: null,
+    overlayTimer: null,
+    roomListener: null,
+    boardListener: null,
+    tiebreakerListener: null,
+  };
+
+  function getBattlePlayerId() {
+    let id = sessionStorage.getItem('kk_pid');
+    if (!id) {
+      id = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
+      sessionStorage.setItem('kk_pid', id);
+    }
+    return id;
+  }
+
+  function currentBattleLen() {
+    return BATTLE_LENGTHS[BATTLE.currentRoundIdx];
+  }
+
+  function wordPoolFor(len) {
+    return len === 4 ? WORDS4 : len === 5 ? WORDS5 : len === 6 ? WORDS6 : WORDS7;
+  }
+
+  function showBattleOverlay(state) {
+    const overlay  = document.getElementById('battle-overlay');
+    const spinner  = document.getElementById('battle-spinner');
+    const title    = document.getElementById('battle-title');
+    const subtitle = document.getElementById('battle-subtitle');
+    const timerEl  = document.getElementById('battle-timer');
+    const cancelBtn = document.getElementById('btn-cancel-battle');
+    overlay.classList.add('visible');
+
+    if (state === 'searching') {
+      spinner.style.cssText = '';
+      spinner.innerHTML = '';
+      title.textContent = 'RAKİP ARANIYOR...';
+      subtitle.textContent = 'Kapışmak isteyen biri bekleniyor';
+      timerEl.style.display = '';
+      cancelBtn.style.display = '';
+      let secs = 60;
+      timerEl.textContent = secs;
+      if (BATTLE.overlayTimer) clearInterval(BATTLE.overlayTimer);
+      BATTLE.overlayTimer = setInterval(() => {
+        secs--;
+        timerEl.textContent = Math.max(0, secs);
+        if (secs <= 0) { clearInterval(BATTLE.overlayTimer); BATTLE.overlayTimer = null; }
+      }, 1000);
+
+    } else if (state === 'found') {
+      if (BATTLE.overlayTimer) { clearInterval(BATTLE.overlayTimer); BATTLE.overlayTimer = null; }
+      spinner.style.cssText = 'width:52px;height:52px;border:none;animation:none';
+      spinner.innerHTML = '<div id="battle-found-icon">⚔️</div>';
+      title.textContent = 'RAKİP BULUNDU!';
+      subtitle.textContent = 'Kapışma 3 saniye içinde başlıyor...';
+      timerEl.style.display = 'none';
+      cancelBtn.style.display = 'none';
+    }
+  }
+
+  function hideBattleOverlay() {
+    document.getElementById('battle-overlay').classList.remove('visible');
+    if (BATTLE.overlayTimer) { clearInterval(BATTLE.overlayTimer); BATTLE.overlayTimer = null; }
+  }
+
+  async function startMatchmaking() {
+    BATTLE.playerId = getBattlePlayerId();
+    showBattleOverlay('searching');
+
+    await db.ref(`kk_queue/${BATTLE.playerId}`).remove().catch(() => {});
+
+    const snap = await db.ref('kk_queue').once('value').catch(() => null);
+    let opponentId = null;
+
+    if (snap && snap.exists()) {
+      const now = Date.now();
+      snap.forEach(child => {
+        if (opponentId) return;
+        const pid = child.key;
+        const data = child.val();
+        if (pid !== BATTLE.playerId && !data.roomId && (now - data.ts) < 62000) {
+          opponentId = pid;
+        }
+      });
+    }
+
+    if (opponentId) {
+      // HOST — tüm uzunluklar için kelimeleri seç
+      BATTLE.isHost = true;
+      BATTLE.opponentId = opponentId;
+      const words = {};
+      BATTLE_LENGTHS.forEach(len => {
+        const pool = wordPoolFor(len);
+        words[len] = pool[Math.floor(Math.random() * pool.length)];
+      });
+      BATTLE.words = words;
+
+      const roomId = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      BATTLE.roomId = roomId;
+
+      await db.ref(`kk_queue/${opponentId}/roomId`).set(roomId).catch(() => {});
+      await db.ref(`kk_rooms/${roomId}`).set({
+        words, ts: Date.now(), p1: BATTLE.playerId, p2: opponentId
+      }).catch(() => {});
+
+      showBattleOverlay('found');
+      setTimeout(() => launchBattleGame(), 2800);
+
+    } else {
+      // GUEST — kuyruğa gir
+      BATTLE.isHost = false;
+      await db.ref(`kk_queue/${BATTLE.playerId}`).set({ ts: Date.now(), roomId: null }).catch(() => {});
+
+      const myRef = db.ref(`kk_queue/${BATTLE.playerId}/roomId`);
+      const onRoomId = async snap => {
+        const roomId = snap.val();
+        if (!roomId) return;
+        myRef.off('value', onRoomId);
+        BATTLE.roomListener = null;
+        if (BATTLE.searchTimeout) { clearTimeout(BATTLE.searchTimeout); BATTLE.searchTimeout = null; }
+
+        const roomSnap = await db.ref(`kk_rooms/${roomId}`).once('value').catch(() => null);
+        if (!roomSnap || !roomSnap.exists()) return;
+        const room = roomSnap.val();
+        BATTLE.roomId = roomId;
+        BATTLE.words = room.words || {};
+        BATTLE.opponentId = room.p1;
+
+        await db.ref(`kk_queue/${BATTLE.playerId}`).remove().catch(() => {});
+        showBattleOverlay('found');
+        setTimeout(() => launchBattleGame(), 2800);
+      };
+
+      BATTLE.roomListener = onRoomId;
+      myRef.on('value', onRoomId);
+      BATTLE.searchTimeout = setTimeout(() => cancelMatchmaking('timeout'), 61000);
+    }
+  }
+
+  function cancelMatchmaking(reason) {
+    if (BATTLE.playerId) db.ref(`kk_queue/${BATTLE.playerId}`).remove().catch(() => {});
+    if (BATTLE.searchTimeout) { clearTimeout(BATTLE.searchTimeout); BATTLE.searchTimeout = null; }
+    if (BATTLE.roomListener) {
+      db.ref(`kk_queue/${BATTLE.playerId}/roomId`).off('value', BATTLE.roomListener);
+      BATTLE.roomListener = null;
+    }
+    hideBattleOverlay();
+    if (reason === 'timeout') showToast('RAKİP BULUNAMADI — TEKRAR DENEYİN', 2500);
+  }
+
+  function launchBattleGame() {
+    hideBattleOverlay();
+    BATTLE.active = true;
+    BATTLE.currentRoundIdx = 0;
+    BATTLE.rounds = {};
+    BATTLE.myRoundDone = false;
+    BATTLE.oppRoundDone = false;
+    BATTLE.oppRoundData = null;
+    BATTLE.tiebreakerLen = null;
+
+    hideSetup();
+    STATE.isCompetitionMode = false;
+    STATE.isBattleMode = true;
+    document.getElementById('score-display').style.visibility = 'hidden';
+    document.getElementById('best-display').style.visibility = 'hidden';
+    document.getElementById('opponent-strip').style.display = 'flex';
+
+    startBattleRound();
+  }
+
+  function startBattleRound() {
+    const len = currentBattleLen();
+    const word = BATTLE.words[len];
+    const secs = calcSeconds([len]);
+
+    BATTLE.myRoundDone = false;
+    BATTLE.oppRoundDone = false;
+    BATTLE.oppRoundData = null;
+
+    if (BATTLE.boardListener && BATTLE.roomId && BATTLE.opponentId) {
+      db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${len}`).off('value', BATTLE.boardListener);
+      BATTLE.boardListener = null;
+    }
+
+    STATE.baseMaxRows = 6;
+    STATE.timerUnlimited = false;
+    STATE.timerTotal = secs;
+    STATE.timerLeft = secs;
+    STATE.canContinue = false;
+    STATE.score = 0;
+    STATE.bestScore = 0;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+
+    ACTIVE_LENGTHS = [len];
+    ACTIVE_WORDS = wordPoolFor(len);
+
+    initRound(word);
+    updateTimerDisplay();
+    hideOverlay();
+    renderOpponentBoard();
+
+    STATE.timerInterval = setInterval(() => {
+      STATE.timerLeft--;
+      updateTimerDisplay();
+      if (STATE.timerLeft === 15) SFX.startHeartbeat();
+      if (STATE.timerLeft <= 0) {
+        clearInterval(STATE.timerInterval);
+        STATE.timerInterval = null;
+        STATE.timerLeft = 0;
+        updateTimerDisplay();
+        if (!STATE.gameOver) {
+          STATE.gameOver = true;
+          SFX.stopHeartbeat();
+          syncMyRound(false, STATE.currentRow);
+          onMyRoundComplete(false);
+        }
+      }
+    }, 1000);
+
+    listenOpponentRound(len);
+  }
+
+  function syncMyBoard(won, gameOver) {
+    // Geriye dönük uyumluluk — submitGuess'te çağrılır
+    if (!BATTLE.active || !BATTLE.roomId || !BATTLE.playerId) return;
+    const len = currentBattleLen();
+    const allGuesses = STATE.guesses.map(g => ({
+      g, s: computeTileStates(g, STATE.targetWord)
+    }));
+    db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.playerId}/rounds/${len}`).update({
+      guesses: allGuesses
+    }).catch(() => {});
+  }
+
+  function syncMyRound(won, row) {
+    if (!BATTLE.active || !BATTLE.roomId || !BATTLE.playerId) return;
+    const len = currentBattleLen();
+    const allGuesses = STATE.guesses.map(g => ({
+      g, s: computeTileStates(g, STATE.targetWord)
+    }));
+    db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.playerId}/rounds/${len}`).set({
+      guesses: allGuesses, won: won || false, row: row || 0, done: true
+    }).catch(() => {});
+  }
+
+  function listenOpponentRound(len) {
+    if (!BATTLE.roomId || !BATTLE.opponentId) return;
+    const ref = db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${len}`);
+    BATTLE.boardListener = ref.on('value', snap => {
+      if (!snap.exists()) return;
+      const data = snap.val();
+      // Anlık tahminleri göster
+      BATTLE.oppRoundData = data;
+      renderOpponentBoard();
+      // Rakip tamamladıysa
+      if (data.done && !BATTLE.oppRoundDone) {
+        BATTLE.oppRoundDone = true;
+        checkBothRoundDone();
+      }
+    });
+  }
+
+  function renderOpponentBoard() {
+    const board = document.getElementById('opp-mini-board');
+    const statusEl = document.getElementById('opp-status-text');
+    if (!board) return;
+    board.innerHTML = '';
+    const len = currentBattleLen();
+    const data = BATTLE.oppRoundData;
+    const guesses = data ? (data.guesses || []) : [];
+    const oppWon = data ? (data.won || false) : false;
+    const oppDone = data ? (data.done || false) : false;
+
+    for (let r = 0; r < 6; r++) {
+      const row = document.createElement('div');
+      row.className = 'opp-mini-row';
+      const gd = guesses[r];
+      for (let c = 0; c < len; c++) {
+        const tile = document.createElement('div');
+        tile.className = 'opp-mini-tile';
+        if (gd && gd.s && gd.s[c]) tile.classList.add(gd.s[c]);
+        row.appendChild(tile);
+      }
+      board.appendChild(row);
+    }
+
+    if (statusEl) {
+      if (oppWon) {
+        statusEl.textContent = '✓ BULDU';
+        statusEl.style.color = 'var(--green-500)';
+      } else if (oppDone) {
+        statusEl.textContent = '✗ BİTTİ';
+        statusEl.style.color = 'var(--text-dim)';
+      } else {
+        statusEl.textContent = guesses.length + '/6';
+        statusEl.style.color = 'var(--danger)';
+      }
+    }
+  }
+
+  // Ben turumu bitirdim (endGame → onMyRoundComplete)
+  function checkBothRoundDone() {
+    if (!BATTLE.myRoundDone || !BATTLE.oppRoundDone) return;
+    // Kaydedilmemişse kaydet
+    const len = currentBattleLen();
+    BATTLE.rounds[len] = BATTLE.rounds[len] || {};
+    if (BATTLE.oppRoundData) {
+      BATTLE.rounds[len].oppWon = BATTLE.oppRoundData.won || false;
+      BATTLE.rounds[len].oppRow = BATTLE.oppRoundData.row || 0;
+    }
+
+    // Timeri durdur
+    SFX.stopHeartbeat();
+    if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
+
+    // Tur sonuç overlay'i göster
+    setTimeout(() => showRoundResult(len), 400);
+  }
+
+  function showRoundResult(len) {
+    const rData = BATTLE.rounds[len] || {};
+    const myWon = rData.myWon || false;
+    const oppWon = rData.oppWon || false;
+    const myRow = rData.myRow || STATE.currentRow;
+
+    document.getElementById('round-word').textContent = turkishUpper(STATE.targetWord);
+
+    const myResEl = document.getElementById('round-my-res');
+    const oppResEl = document.getElementById('round-opp-res');
+    const winLbl = document.getElementById('round-winner-lbl');
+    const scoreLbl = document.getElementById('round-score-lbl');
+    const nextLbl = document.getElementById('round-next-lbl');
+
+    myResEl.textContent  = myWon  ? myRow + '. tahminde' : 'Bulamadı';
+    myResEl.className    = 'round-player-res ' + (myWon ? 'won' : 'lost');
+    oppResEl.textContent = oppWon ? (BATTLE.oppRoundData?.row || '?') + '. tahminde' : 'Bulamadı';
+    oppResEl.className   = 'round-player-res ' + (oppWon ? 'won' : 'lost');
+
+    // Tur kazananı
+    let roundWinner = 'draw';
+    if (myWon && !oppWon) { roundWinner = 'me'; rData.roundWinner = 'me'; }
+    else if (!myWon && oppWon) { roundWinner = 'opp'; rData.roundWinner = 'opp'; }
+    else if (myWon && oppWon) {
+      // İkisi de buldu — daha az tahminde bulan kazanır
+      if (myRow < (BATTLE.oppRoundData?.row || 99)) { roundWinner = 'me'; rData.roundWinner = 'me'; }
+      else if ((BATTLE.oppRoundData?.row || 99) < myRow) { roundWinner = 'opp'; rData.roundWinner = 'opp'; }
+    }
+    BATTLE.rounds[len].roundWinner = roundWinner;
+
+    if (roundWinner === 'me') {
+      winLbl.textContent = 'TUR SENDE! 🏆';
+      winLbl.className = 'win';
+    } else if (roundWinner === 'opp') {
+      winLbl.textContent = 'TUR RAKİPTE';
+      winLbl.className = 'lose';
+    } else {
+      winLbl.textContent = 'TUR BERABERELİK';
+      winLbl.className = 'draw';
+    }
+
+    // Genel skor
+    const myWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'me').length;
+    const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
+    scoreLbl.textContent = `SKOR: ${myWins} — ${oppWins}`;
+
+    // Sonraki mesaj
+    const isLast = BATTLE.currentRoundIdx >= BATTLE_LENGTHS.length - 1;
+    nextLbl.textContent = isLast ? 'SONUÇ BEKLENİYOR...' : `SIRA: ${BATTLE_LENGTHS[BATTLE.currentRoundIdx + 1]} HARFLİ TUR →`;
+
+    document.getElementById('round-overlay').classList.add('visible');
+
+    // Tüm turlar bittiyse 3sn sonra final
+    const delay = isLast ? 3500 : 3500;
+    setTimeout(() => {
+      document.getElementById('round-overlay').classList.remove('visible');
+      if (isLast) {
+        processBattleEnd();
+      } else {
+        BATTLE.currentRoundIdx++;
+        startBattleRound();
+      }
+    }, delay);
+  }
+
+  function processBattleEnd() {
+    const myWins  = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'me').length;
+    const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
+
+    if (myWins > oppWins) {
+      showFinalBattleResult(true, null);
+    } else if (oppWins > myWins) {
+      showFinalBattleResult(false, 'opp_won');
+    } else {
+      // Beraberlik — çark
+      startTiebreakerWheel();
+    }
+  }
+
+  function showFinalBattleResult(iWon, reason) {
+    STATE.gameOver = true;
+    SFX.stopHeartbeat();
+    if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
+
+    const myWins  = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'me').length;
+    const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
+
+    const title  = document.getElementById('overlay-title');
+    const wordEl = document.getElementById('overlay-word');
+    const descEl = document.getElementById('overlay-desc');
+    document.getElementById('overlay-stats').style.display = 'none';
+
+    if (iWon) {
+      SFX.applause(3.5, 0.5);
+      launchConfetti(140);
+      title.textContent = 'KAPIŞMAYI KAZANDIN! ⚔️';
+      title.className = 'win';
+      wordEl.textContent = myWins + ' — ' + oppWins;
+      descEl.textContent = 'TUR SKORU';
+    } else {
+      SFX.lose();
+      title.textContent = 'KAPIŞMAYI KAYBETTİN ⚔️';
+      title.className = 'lose';
+      wordEl.textContent = myWins + ' — ' + oppWins;
+      descEl.textContent = 'TUR SKORU';
+    }
+
+    showOverlayButtons(false);
+    setTimeout(() => document.getElementById('screen-overlay').classList.add('visible'), 400);
+  }
+
+  // ─── Çark (beraberlik turu) ───────────────────────────────────────────────
+
+  function startTiebreakerWheel() {
+    document.getElementById('wheel-title').textContent = 'BERABERE! ÇARK DÖNÜYOR...';
+    document.getElementById('wheel-result-lbl').textContent = '';
+    document.getElementById('wheel-overlay').classList.add('visible');
+
+    if (BATTLE.isHost) {
+      // Host rastgele uzunluğu seçer ve Firebase'e yazar
+      const tieLen = BATTLE_LENGTHS[Math.floor(Math.random() * BATTLE_LENGTHS.length)];
+      BATTLE.tiebreakerLen = tieLen;
+      db.ref(`kk_rooms/${BATTLE.roomId}/tieLength`).set(tieLen).catch(() => {});
+      animateWheel(tieLen, () => startTiebreakerRound(tieLen));
+    } else {
+      // Guest Firebase'den okur
+      const tieRef = db.ref(`kk_rooms/${BATTLE.roomId}/tieLength`);
+      BATTLE.tiebreakerListener = tieRef.on('value', snap => {
+        const tieLen = snap.val();
+        if (!tieLen) return;
+        tieRef.off('value', BATTLE.tiebreakerListener);
+        BATTLE.tiebreakerListener = null;
+        BATTLE.tiebreakerLen = tieLen;
+        animateWheel(tieLen, () => startTiebreakerRound(tieLen));
+      });
+    }
+  }
+
+  function animateWheel(tieLen, callback) {
+    // Hangi açıya dönmeli? (ok yukarıda, 0° = top)
+    // Segment düzeni: 4=0°-90°, 5=90°-180°, 6=180°-270°, 7=270°-360°
+    // Ok yukarıda → hedef segmentin ortası gelmeli
+    const segMid = { 4: 45, 5: 135, 6: 225, 7: 315 };
+    const target = segMid[tieLen];
+    // 5 tam tur + hedef açı (ters yönde çevirmek için negatif)
+    const totalDeg = -(5 * 360 + target);
+    const wheel = document.getElementById('wheel-el');
+    wheel.style.transition = 'none';
+    wheel.style.transform = 'rotate(0deg)';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        wheel.style.transition = 'transform 4s cubic-bezier(0.05, 0.8, 0.05, 1)';
+        wheel.style.transform = `rotate(${totalDeg}deg)`;
+      });
+    });
+
+    setTimeout(() => {
+      document.getElementById('wheel-result-lbl').textContent = tieLen + ' HARFLİ TUR!';
+      setTimeout(() => {
+        document.getElementById('wheel-overlay').classList.remove('visible');
+        callback();
+      }, 1800);
+    }, 4200);
+  }
+
+  function startTiebreakerRound() {
+    const len = BATTLE.tiebreakerLen;
+    if (!len) return;
+
+    // Yeni tiebreaker kelimesini belirle
+    if (BATTLE.isHost) {
+      const pool = wordPoolFor(len);
+      const word = pool[Math.floor(Math.random() * pool.length)];
+      BATTLE.words[len + '_tie'] = word;
+      db.ref(`kk_rooms/${BATTLE.roomId}/tieWord`).set(word).catch(() => {});
+      launchTiebreakerGame(word, len);
+    } else {
+      const tieWordRef = db.ref(`kk_rooms/${BATTLE.roomId}/tieWord`);
+      tieWordRef.once('value').then(snap => {
+        if (snap.val()) {
+          launchTiebreakerGame(snap.val(), len);
+        } else {
+          tieWordRef.on('value', s => {
+            if (!s.val()) return;
+            tieWordRef.off();
+            launchTiebreakerGame(s.val(), len);
+          });
+        }
+      });
+    }
+  }
+
+  function launchTiebreakerGame(word, len) {
+    BATTLE.currentRoundIdx = BATTLE_LENGTHS.indexOf(len);
+    if (BATTLE.currentRoundIdx < 0) BATTLE.currentRoundIdx = 0;
+    BATTLE.rounds[len + '_tie'] = {};
+    BATTLE.myRoundDone = false;
+    BATTLE.oppRoundDone = false;
+    BATTLE.oppRoundData = null;
+
+    // Özel tiebreaker tur listener'ı
+    const secs = calcSeconds([len]);
+    STATE.baseMaxRows = 6;
+    STATE.timerUnlimited = false;
+    STATE.timerTotal = secs;
+    STATE.timerLeft = secs;
+    STATE.canContinue = false;
+    STATE.gameOver = false;
+    STATE.score = 0;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+
+    ACTIVE_LENGTHS = [len];
+    ACTIVE_WORDS = wordPoolFor(len);
+
+    // Tiebreaker için özel tur key'i kullan
+    const tieKey = len + '_tie';
+    initRound(word);
+    updateTimerDisplay();
+    hideOverlay();
+    renderOpponentBoard();
+
+    // Override onMyRoundComplete for tiebreaker
+    BATTLE._isTiebreaker = true;
+    BATTLE._tiebreakerKey = tieKey;
+
+    const tieOppRef = db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${tieKey}`);
+    if (BATTLE.boardListener) {
+      db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${currentBattleLen()}`).off('value', BATTLE.boardListener);
+    }
+    BATTLE.boardListener = tieOppRef.on('value', snap => {
+      if (!snap.exists()) return;
+      const data = snap.val();
+      BATTLE.oppRoundData = data;
+      renderOpponentBoard();
+      if (data.done && !BATTLE.oppRoundDone) {
+        BATTLE.oppRoundDone = true;
+        checkBothTiebreakerDone();
+      }
+    });
+
+    STATE.timerInterval = setInterval(() => {
+      STATE.timerLeft--;
+      updateTimerDisplay();
+      if (STATE.timerLeft === 15) SFX.startHeartbeat();
+      if (STATE.timerLeft <= 0) {
+        clearInterval(STATE.timerInterval);
+        STATE.timerInterval = null;
+        STATE.timerLeft = 0;
+        updateTimerDisplay();
+        if (!STATE.gameOver) {
+          STATE.gameOver = true;
+          SFX.stopHeartbeat();
+          syncTiebreakerRound(false, STATE.currentRow);
+          BATTLE.myRoundDone = true;
+          checkBothTiebreakerDone();
+        }
+      }
+    }, 1000);
+  }
+
+  function syncTiebreakerRound(won, row) {
+    if (!BATTLE.active || !BATTLE.roomId || !BATTLE.playerId) return;
+    const key = BATTLE._tiebreakerKey;
+    const allGuesses = STATE.guesses.map(g => ({
+      g, s: computeTileStates(g, STATE.targetWord)
+    }));
+    db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.playerId}/rounds/${key}`).set({
+      guesses: allGuesses, won: won || false, row: row || 0, done: true
+    }).catch(() => {});
+  }
+
+  function checkBothTiebreakerDone() {
+    if (!BATTLE.myRoundDone || !BATTLE.oppRoundDone) return;
+    SFX.stopHeartbeat();
+    if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
+
+    const myWon  = BATTLE.rounds[BATTLE._tiebreakerKey]?.myWon || false;
+    const oppWon = BATTLE.oppRoundData?.won || false;
+    const myRow  = BATTLE.rounds[BATTLE._tiebreakerKey]?.myRow || STATE.currentRow;
+    const oppRow = BATTLE.oppRoundData?.row || 99;
+
+    let iWon = false;
+    if (myWon && !oppWon) iWon = true;
+    else if (myWon && oppWon && myRow < oppRow) iWon = true;
+
+    setTimeout(() => showFinalBattleResult(iWon, iWon ? null : 'opp_won'), 400);
+  }
+
+  // Override endGame → onMyRoundComplete için tiebreaker durumu
+  function onMyRoundComplete(iWon) {
+    if (!STATE.isBattleMode) return;
+    BATTLE.myRoundDone = true;
+    const row = STATE.currentRow;
+
+    if (BATTLE._isTiebreaker) {
+      const key = BATTLE._tiebreakerKey;
+      BATTLE.rounds[key] = { myWon: iWon, myRow: row };
+      syncTiebreakerRound(iWon, row);
+      checkBothTiebreakerDone();
+      return;
+    }
+
+    syncMyRound(iWon, row);
+    const len = currentBattleLen();
+    BATTLE.rounds[len] = BATTLE.rounds[len] || {};
+    BATTLE.rounds[len].myWon = iWon;
+    BATTLE.rounds[len].myRow = row;
+    checkBothRoundDone();
+  }
+
+  function cleanupBattle() {
+    if (BATTLE.boardListener && BATTLE.roomId && BATTLE.opponentId) {
+      const len = currentBattleLen();
+      db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${len}`).off('value', BATTLE.boardListener);
+      BATTLE.boardListener = null;
+    }
+    if (BATTLE.tiebreakerListener && BATTLE.roomId) {
+      db.ref(`kk_rooms/${BATTLE.roomId}/tieLength`).off('value', BATTLE.tiebreakerListener);
+      BATTLE.tiebreakerListener = null;
+    }
+    BATTLE.active = false;
+    BATTLE.roomId = null;
+    BATTLE.words = {};
+    BATTLE.opponentId = null;
+    BATTLE._isTiebreaker = false;
+    STATE.isBattleMode = false;
+    document.getElementById('opponent-strip').style.display = 'none';
+  }
+
+  document.getElementById('btn-cancel-battle').addEventListener('click', () => cancelMatchmaking('user'));
+
+  // ─── SPRİNT MODU ─────────────────────────────────────────────────────────
+
+  const SPRINT = {
+    lengths: [],         // seçili uzunluklar [4,5,6,7] kombinasyonu
+    currentIdx: 0,       // hangi uzunluktayız
+    counts: {},          // {4: 3, 5: 5, ...} çözülen sayısı
+    timerInterval: null,
+    timerLeft: 300,      // 5 dakika
+  };
+
+  function startSprint(lengths) {
+    SPRINT.lengths  = lengths;
+    SPRINT.currentIdx = 0;
+    SPRINT.counts = {};
+    lengths.forEach(l => SPRINT.counts[l] = 0);
+
+    STATE.isSprintMode = true;
+    STATE.isCompetitionMode = false;
+    STATE.isBattleMode = false;
+    document.getElementById('score-display').style.visibility = 'hidden';
+    document.getElementById('best-display').style.visibility = 'hidden';
+    document.getElementById('opponent-strip').style.display = 'none';
+
+    startSprintLength();
+  }
+
+  function startSprintLength() {
+    const len = SPRINT.lengths[SPRINT.currentIdx];
+    SPRINT.timerLeft = 300;
+    if (SPRINT.timerInterval) clearInterval(SPRINT.timerInterval);
+
+    STATE.baseMaxRows = 6;
+    STATE.timerUnlimited = false;
+    STATE.timerTotal = 300;
+    STATE.timerLeft = 300;
+    STATE.canContinue = false;
+    STATE.score = 0;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+
+    ACTIVE_LENGTHS = [len];
+    ACTIVE_WORDS = wordPoolFor(len);
+
+    const pool = wordPoolFor(len);
+    const word = pool[Math.floor(Math.random() * pool.length)];
+    initRound(word);
+    updateTimerDisplay();
+    hideOverlay();
+
+    STATE.timerInterval = setInterval(() => {
+      STATE.timerLeft--;
+      updateTimerDisplay();
+      if (STATE.timerLeft === 15) SFX.startHeartbeat();
+      if (STATE.timerLeft <= 0) {
+        clearInterval(STATE.timerInterval);
+        STATE.timerInterval = null;
+        STATE.timerLeft = 0;
+        updateTimerDisplay();
+        SFX.stopHeartbeat();
+        endSprintLength();
+      }
+    }, 1000);
+  }
+
+  function handleSprintWordEnd(won) {
+    if (won) {
+      const len = SPRINT.lengths[SPRINT.currentIdx];
+      SPRINT.counts[len]++;
+      SFX.applause(1.2, 0.3);
+      showToast(turkishUpper(STATE.targetWord) + ' ✓  +1', 900);
+    } else {
+      showToast(turkishUpper(STATE.targetWord), 900);
+    }
+
+    // Yeni kelime başlat (timer devam eder)
+    setTimeout(() => {
+      const len = SPRINT.lengths[SPRINT.currentIdx];
+      const pool = wordPoolFor(len);
+      const word = pool[Math.floor(Math.random() * pool.length)];
+      initRound(word);
+      document.getElementById('subtitle').textContent = len + ' HARFLİ — ' + SPRINT.counts[len] + ' ÇÖZÜLDÜ';
+    }, 1000);
+  }
+
+  function endSprintLength() {
+    STATE.gameOver = true;
+    SPRINT.currentIdx++;
+    if (SPRINT.currentIdx >= SPRINT.lengths.length) {
+      showSprintFinalResult();
+    } else {
+      const nextLen = SPRINT.lengths[SPRINT.currentIdx];
+      const title  = document.getElementById('overlay-title');
+      const wordEl = document.getElementById('overlay-word');
+      const descEl = document.getElementById('overlay-desc');
+      document.getElementById('overlay-stats').style.display = 'none';
+      title.textContent = 'SÜRE DOLDU!';
+      title.className = 'win';
+      wordEl.textContent = SPRINT.lengths[SPRINT.currentIdx - 1] + ' HARFLİ BİTTİ';
+      descEl.textContent = nextLen + ' HARFLİ BAŞLIYOR...';
+      showOverlayButtons(false);
+      document.getElementById('screen-overlay').classList.add('visible');
+      setTimeout(() => {
+        hideOverlay();
+        startSprintLength();
+      }, 2500);
+    }
+  }
+
+  function showSprintFinalResult() {
+    STATE.isSprintMode = false;
+    SFX.applause(4.0, 0.6);
+    launchConfetti(100);
+
+    const title  = document.getElementById('overlay-title');
+    const wordEl = document.getElementById('overlay-word');
+    const descEl = document.getElementById('overlay-desc');
+    document.getElementById('overlay-stats').style.display = 'none';
+
+    title.textContent = 'SPRİNT BİTTİ! 🏃';
+    title.className = 'win';
+
+    const lines = SPRINT.lengths.map(l => l + ' HARFLİ: ' + SPRINT.counts[l]).join('  |  ');
+    const total = SPRINT.lengths.reduce((s, l) => s + SPRINT.counts[l], 0);
+    wordEl.textContent = total + ' KELİME';
+    descEl.textContent = lines;
+
+    showOverlayButtons(false);
+    setTimeout(() => document.getElementById('screen-overlay').classList.add('visible'), 400);
+  }
+
   </script>
 </body>
 </html>
