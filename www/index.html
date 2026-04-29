@@ -18,6 +18,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -236,7 +237,7 @@
     /* MOD SEKME */
     #mode-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       background: var(--ink-100);
       border-radius: var(--radius);
       padding: 4px;
@@ -370,10 +371,29 @@
 
     #setup-header {
       width: 100%;
+      display: grid;
+      grid-template-columns: 28px 1fr 28px;
+      align-items: center;
+      gap: 6px;
+    }
+    #setup-header h2 { text-align: center; }
+    #btn-home-from-setup {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      width: 28px;
+      height: 28px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 150ms;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+    }
+    #btn-home-from-setup:hover {
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
     #setup-box h2 {
@@ -1222,7 +1242,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 350;
+      z-index: 650;
       opacity: 0;
       pointer-events: none;
       transition: opacity 250ms;
@@ -1488,10 +1508,190 @@
 
     #btn-battle:hover { background: var(--danger); color: var(--ink-0); }
 
-    /* Sprint tab */
-    .mode-tab.sprint-tab.active { border-color: var(--amber-500); color: var(--amber-500); }
+    /* ═══ LAKABını BELİRLE MODAL ═══ */
+    #nick-modal {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.75);
+      backdrop-filter: blur(14px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 700;
+    }
+    #nick-modal.visible { display: flex; }
+    #nick-box {
+      background: var(--surface);
+      border: 1.5px solid var(--primary);
+      border-radius: 16px;
+      padding: 32px 24px 28px;
+      width: 88%; max-width: 320px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+      text-align: center;
+    }
+    #nick-icon { font-size: 2.4rem; }
+    #nick-title {
+      font-family: var(--font-head); font-size: 1rem;
+      font-weight: 700; letter-spacing: 4px;
+      color: var(--primary);
+    }
+    #nick-desc {
+      font-family: var(--font-body); font-size: 0.78rem;
+      color: var(--text-dim); letter-spacing: 0.5px;
+    }
+    #nick-input {
+      width: 100%; padding: 11px 14px;
+      background: var(--ink-100);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font-head); font-size: 0.85rem;
+      letter-spacing: 3px; text-align: center;
+      outline: none; transition: border-color 150ms;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+    #nick-input:focus { border-color: var(--primary); }
+    #nick-input::placeholder { color: var(--text-dim); font-size: 0.7rem; letter-spacing: 2px; }
+    #btn-nick-save {
+      width: 100%; padding: 13px;
+      background: var(--primary); border: none;
+      color: var(--ink-0); font-family: var(--font-head);
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 4px;
+      border-radius: var(--radius); cursor: pointer;
+      transition: opacity 150ms;
+    }
+    #btn-nick-save:hover { opacity: 0.85; }
 
-    /* Sprint paneli */
+    /* ═══ SIRALAMA TABLOSU ═══ */
+    #lb-overlay {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.6);
+      backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 650;
+    }
+    #lb-overlay.visible { display: flex; }
+    #lb-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 20px 20px;
+      width: 92%; max-width: 420px;
+      max-height: 88vh;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    #lb-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #lb-header h2 {
+      font-family: var(--font-head);
+      font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 4px; color: var(--amber-500);
+      margin: 0;
+    }
+    #btn-lb-close {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--text-dim); width: 28px; height: 28px;
+      border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 150ms;
+    }
+    #btn-lb-close:hover { border-color: var(--danger); color: var(--danger); }
+    #lb-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    }
+    .lb-tab {
+      padding: 9px 4px;
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--text-dim); font-family: var(--font-head);
+      font-size: 0.6rem; letter-spacing: 2px;
+      cursor: pointer; border-radius: var(--radius-sm); transition: all 150ms;
+    }
+    .lb-tab.active {
+      background: var(--surface); border-color: var(--amber-500);
+      color: var(--amber-500);
+    }
+    #lb-nick-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--ink-100); border-radius: var(--radius-sm);
+      padding: 8px 12px;
+    }
+    #lb-my-nick {
+      font-family: var(--font-head); font-size: 0.7rem;
+      letter-spacing: 2px; color: var(--text);
+    }
+    #btn-change-nick {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-dim); font-family: var(--font-head);
+      font-size: 0.55rem; letter-spacing: 1px; padding: 3px 8px;
+      border-radius: 4px; cursor: pointer; transition: all 150ms;
+    }
+    #btn-change-nick:hover { border-color: var(--primary); color: var(--primary); }
+    #lb-table-wrap {
+      overflow-y: auto; max-height: 340px; flex: 1;
+    }
+    #lb-table-wrap::-webkit-scrollbar { display: none; }
+    #lb-loading {
+      font-family: var(--font-head); font-size: 0.65rem;
+      letter-spacing: 3px; color: var(--text-dim);
+      text-align: center; padding: 32px 0;
+    }
+    #lb-empty {
+      font-family: var(--font-body); font-size: 0.8rem;
+      color: var(--text-dim); text-align: center; padding: 32px 0;
+    }
+    #lb-table {
+      width: 100%; border-collapse: collapse;
+    }
+    #lb-table thead tr {
+      border-bottom: 1.5px solid var(--border);
+    }
+    #lb-table th {
+      font-family: var(--font-head); font-size: 0.55rem;
+      letter-spacing: 2px; color: var(--text-dim);
+      padding: 6px 8px; text-align: left; font-weight: 600;
+    }
+    #lb-table th:last-child { text-align: right; }
+    #lb-table td {
+      font-family: var(--font-body); font-size: 0.82rem;
+      letter-spacing: 0.5px; color: var(--text);
+      padding: 10px 8px; border-bottom: 1px solid var(--ink-100);
+    }
+    #lb-table td:last-child { text-align: right; font-family: var(--font-head); font-size: 0.78rem; }
+    .lb-rank { color: var(--text-dim); font-size: 0.72rem; }
+    .lb-rank-1 { color: var(--amber-500); font-weight: 700; }
+    .lb-rank-2 { color: var(--ink-400); font-weight: 700; }
+    .lb-rank-3 { color: #cd7f32; font-weight: 700; }
+    .lb-me td { background: oklch(68% 0.16 150 / 0.06); }
+    .lb-me td:first-child { border-left: 3px solid var(--neon-green,#00ff9f); }
+
+    /* Yarışma alt-sekmeleri */
+    #comp-subtabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      width: 100%;
+    }
+    .comp-subtab {
+      padding: 8px 4px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-head);
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 150ms;
+    }
+    .comp-subtab.active {
+      background: var(--surface);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    #klasik-panel { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    #klasik-panel.hidden { display: none; }
+
+    /* Sprint paneli (yarışma içinde) */
     #sprint-panel { width: 100%; display: none; flex-direction: column; align-items: center; gap: 12px; }
     #sprint-panel.visible { display: flex; }
 
@@ -1576,9 +1776,365 @@
 
     #wheel-ptr { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 1.3rem; color: var(--amber-500); }
     #wheel-result-lbl { font-family: var(--font-head); font-size: 0.92rem; font-weight: 700; letter-spacing: 3px; color: var(--amber-500); min-height: 1.4rem; }
+
+    /* ═══ LANDING PAGE ═══ */
+    #landing-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 600;
+      padding: 32px 20px;
+      gap: 0;
+      transition: opacity 350ms ease, transform 350ms ease;
+    }
+    #landing-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-12px);
+    }
+    .landing-logo {
+      font-family: var(--font-head);
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: 10px;
+      color: var(--text);
+      margin-bottom: 6px;
+      animation: glitch 6s ease-in-out infinite;
+    }
+    .landing-sub {
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      letter-spacing: 4px;
+      color: var(--primary);
+      opacity: 0.8;
+      margin-bottom: 40px;
+      text-transform: uppercase;
+    }
+    .landing-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .landing-btn {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: var(--radius);
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 180ms;
+    }
+    .landing-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--cyan-100); }
+    .landing-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .landing-btn.primary:hover { background: var(--cyan-600); border-color: var(--cyan-600); color: #fff; }
+    .landing-btn.adventure {
+      background: var(--green-500);
+      border-color: var(--green-600);
+      color: #fff;
+    }
+    .landing-btn.adventure:hover { background: var(--green-600); border-color: var(--green-600); color: #fff; }
+    .landing-btn.google {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .landing-btn.google:hover { border-color: var(--cyan-500); }
+    .google-icon {
+      width: 20px; height: 20px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%234285F4' d='M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.9 3 4 11.9 4 23s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.2-3z'/%3E%3Cpath fill='%23FBBC05' d='M6.3 14.7l7 5.1C15 16.1 19.1 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 16 3 9.1 7.9 6.3 14.7z'/%3E%3Cpath fill='%2334A853' d='M24 43c5.8 0 10.7-1.9 14.3-5.2l-6.6-5.4C29.8 34.3 27 35.2 24 35.2c-5.8 0-10.7-3.9-12.5-9.3l-7 5.4C7.6 39.1 15.2 43 24 43z'/%3E%3Cpath fill='%23EA4335' d='M44.5 20H24v8.5h11.8c-.9 2.5-2.6 4.6-4.8 6.1l6.6 5.4C41.6 36.3 44.5 30.2 44.5 23c0-1-.1-2-.2-3z' /%3E%3C/svg%3E") center/contain no-repeat;
+      flex-shrink: 0;
+    }
+    .landing-guest {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+    .landing-guest:hover { color: var(--primary); }
+
+    #landing-auth-guest, #landing-auth-user { width: 100%; }
+    #landing-user-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--ink-100); border-radius: var(--radius);
+      padding: 10px 14px; width: 100%; box-sizing: border-box;
+    }
+    #landing-user-photo {
+      width: 32px; height: 32px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+      border: 1.5px solid var(--primary);
+    }
+    #landing-user-name {
+      flex: 1; font-family: var(--font-head);
+      font-size: 0.72rem; letter-spacing: 1px;
+      color: var(--text); overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    #btn-landing-logout {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-dim); font-family: var(--font-head);
+      font-size: 0.55rem; letter-spacing: 1px; padding: 4px 8px;
+      border-radius: 4px; cursor: pointer; transition: all 150ms;
+      flex-shrink: 0;
+    }
+    #btn-landing-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    .landing-version {
+      position: absolute;
+      bottom: 24px;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    /* ═══ MACERA MODU OVERLAY ═══ */
+    #adventure-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(18% 0.045 262 / 0.5);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 350;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms;
+    }
+    #adventure-overlay.visible { opacity: 1; pointer-events: all; }
+
+    #adventure-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      width: 92%;
+      max-width: 400px;
+      max-height: 88vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #adventure-box::-webkit-scrollbar { display: none; }
+
+    .adv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .adv-title {
+      font-family: var(--font-head);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--green-500);
+    }
+    .adv-close-btn {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      width: 28px; height: 28px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 150ms;
+    }
+    .adv-close-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    .adv-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--ink-200);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .adv-progress-fill {
+      height: 100%;
+      background: var(--green-500);
+      border-radius: 3px;
+      transition: width 600ms ease;
+    }
+    .adv-progress-lbl {
+      font-family: var(--font-head);
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .adv-chapters {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .adv-chapter {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 150ms;
+      background: var(--surface);
+    }
+    .adv-chapter:hover:not(.locked) { border-color: var(--green-500); background: oklch(68% 0.16 150 / 0.06); }
+    .adv-chapter.completed { border-color: var(--green-500); background: oklch(68% 0.16 150 / 0.08); }
+    .adv-chapter.active { border-color: var(--primary); background: var(--cyan-100); }
+    .adv-chapter.locked { opacity: 0.45; cursor: not-allowed; }
+
+    .adv-chapter-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .adv-chapter-info { flex: 1; }
+    .adv-chapter-name {
+      font-family: var(--font-head);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text);
+    }
+    .adv-chapter-desc {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+    }
+    .adv-chapter-badge {
+      font-family: var(--font-head);
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .adv-chapter-badge.done { color: var(--green-500); background: oklch(68% 0.16 150 / 0.12); border: 1px solid var(--green-500); }
+    .adv-chapter-badge.go   { color: var(--primary); background: var(--cyan-100); border: 1px solid var(--primary); }
+    .adv-chapter-badge.lock { color: var(--text-dim); background: transparent; border: 1px solid var(--border); }
+
+    /* Macera oyun tamamlandı overlay */
+    #adv-complete-overlay {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.88);
+      backdrop-filter: blur(14px);
+      display: none; align-items: center; justify-content: center; z-index: 470;
+    }
+    #adv-complete-overlay.visible { display: flex; }
+    #adv-complete-box {
+      background: var(--surface);
+      border: 1.5px solid var(--green-500);
+      border-radius: 16px;
+      padding: 32px 28px;
+      text-align: center;
+      max-width: 300px;
+      width: 88%;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    #adv-complete-icon { font-size: 2.8rem; }
+    #adv-complete-title { font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: 4px; color: var(--green-500); }
+    #adv-complete-word  { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; letter-spacing: 6px; color: var(--amber-500); }
+    #adv-complete-desc  { font-family: var(--font-body); font-size: 0.78rem; color: var(--text-dim); letter-spacing: 1px; line-height: 1.5; }
+    #btn-adv-next {
+      padding: 12px 32px;
+      background: var(--green-500);
+      border: none; color: #fff;
+      font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; letter-spacing: 3px;
+      cursor: pointer; border-radius: var(--radius); transition: all 150ms;
+    }
+    #btn-adv-next:hover { background: var(--green-600); }
+    #btn-adv-back {
+      padding: 8px 20px;
+      background: transparent; border: 1.5px solid var(--border); color: var(--text-dim);
+      font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 2px;
+      cursor: pointer; border-radius: var(--radius-sm); transition: all 150ms;
+    }
+    #btn-adv-back:hover { border-color: var(--primary); color: var(--primary); }
   </style>
 </head>
 <body>
+
+  <!-- ══ LANDING PAGE ══ -->
+  <div id="landing-screen">
+    <div class="landing-logo">KOD KIRICI</div>
+    <div class="landing-sub">Türkçe Kelime Tahmin Oyunu</div>
+    <div class="landing-buttons">
+      <!-- Giriş yapılmamışken -->
+      <div id="landing-auth-guest">
+        <button class="landing-btn google" id="btn-landing-google">
+          <span class="google-icon"></span>
+          Google ile Giriş Yap
+        </button>
+        <button class="landing-btn" id="btn-landing-guest" style="background:transparent;border-color:var(--border);color:var(--text-dim);">👤 Misafir Olarak Devam Et</button>
+        <div id="guest-nick-row" style="display:none;text-align:center;font-size:0.75rem;color:var(--text-dim);margin-top:-8px;letter-spacing:1px;">
+          <span id="guest-nick-label"></span> · <button id="btn-change-guest-nick" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.75rem;letter-spacing:1px;padding:0;">DEĞİŞTİR</button>
+        </div>
+      </div>
+      <!-- Giriş yapılmışken -->
+      <div id="landing-auth-user" style="display:none">
+        <div id="landing-user-row">
+          <img id="landing-user-photo" src="" alt="" referrerpolicy="no-referrer">
+          <span id="landing-user-name"></span>
+          <button id="btn-landing-logout">Çıkış Yap</button>
+        </div>
+      </div>
+      <button class="landing-btn primary" id="btn-landing-play">▶ OYNA</button>
+      <button class="landing-btn adventure" id="btn-landing-adventure">🗺 MACERA MODU</button>
+      <button class="landing-btn" id="btn-landing-leaderboard">🏆 SIRALAMA</button>
+      <button class="landing-btn" id="btn-landing-settings">⚙ AYARLAR</button>
+    </div>
+    <span class="landing-version">v1.0</span>
+  </div>
+
+  <!-- ══ MACERA MODU OVERLAY ══ -->
+  <div id="adventure-overlay">
+    <div id="adventure-box">
+      <div class="adv-header">
+        <div class="adv-title">🗺 MACERA MODU</div>
+        <button class="adv-close-btn" id="btn-adv-close">✕</button>
+      </div>
+      <div class="adv-progress-bar"><div class="adv-progress-fill" id="adv-progress-fill" style="width:0%"></div></div>
+      <div class="adv-progress-lbl" id="adv-progress-lbl">0 / 10 BÖLÜM TAMAMLANDI</div>
+      <div class="adv-chapters" id="adv-chapters-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ MACERA TAMAMLANDI OVERLAY ══ -->
+  <div id="adv-complete-overlay">
+    <div id="adv-complete-box">
+      <div id="adv-complete-icon">🎉</div>
+      <div id="adv-complete-title">ŞİFRE KIRILDI!</div>
+      <div id="adv-complete-word"></div>
+      <div id="adv-complete-desc"></div>
+      <button id="btn-adv-next">SONRAKİ BÖLÜM</button>
+      <button id="btn-adv-back">HARITAYA DÖN</button>
+    </div>
+  </div>
 
   <div id="header">
     <h1 id="game-title">KOD KIRICI</h1>
@@ -1636,6 +2192,49 @@
 
   <div id="toast"></div>
 
+  <!-- ══ LAKABını BELİRLE MODAL ══ -->
+  <div id="nick-modal">
+    <div id="nick-box">
+      <div id="nick-icon">🎮</div>
+      <div id="nick-title">LAKABINI BELİRLE</div>
+      <div id="nick-desc">Sıralamada bu isimle görüneceksin</div>
+      <input id="nick-input" type="text" maxlength="16" placeholder="LAKABINI GİR..." autocomplete="off" spellcheck="false">
+      <button id="btn-nick-save">TAMAM</button>
+    </div>
+  </div>
+
+  <!-- ══ SIRALAMA TABLOSU OVERLAY ══ -->
+  <div id="lb-overlay">
+    <div id="lb-box">
+      <div id="lb-header">
+        <h2>🏆 SIRALAMA</h2>
+        <button id="btn-lb-close">✕</button>
+      </div>
+      <div id="lb-tabs">
+        <button class="lb-tab active" id="lb-tab-comp">🏆 YARIŞMA</button>
+        <button class="lb-tab" id="lb-tab-battle">⚔️ KAPIŞMA</button>
+      </div>
+      <div id="lb-nick-row">
+        <span id="lb-my-nick"></span>
+        <button id="btn-change-nick">✎ DEĞİŞTİR</button>
+      </div>
+      <div id="lb-table-wrap">
+        <div id="lb-loading">YÜKLENİYOR...</div>
+        <table id="lb-table" style="display:none">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>OYUNCU</th>
+              <th id="lb-col-val">PUAN</th>
+            </tr>
+          </thead>
+          <tbody id="lb-tbody"></tbody>
+        </table>
+        <div id="lb-empty" style="display:none">Henüz kayıt yok.</div>
+      </div>
+    </div>
+  </div>
+
   <div id="settings-overlay">
     <div id="settings-box">
       <h2>⚙ AYARLAR</h2>
@@ -1680,9 +2279,10 @@
     </div>
   </div>
 
-  <div id="setup-overlay" class="visible">
+  <div id="setup-overlay">
     <div id="setup-box">
       <div id="setup-header">
+        <button id="btn-home-from-setup" title="Ana Menü">⌂</button>
         <h2>KOD KIRICI</h2>
         <button id="btn-settings-from-setup" title="Ayarlar">⚙</button>
       </div>
@@ -1692,7 +2292,6 @@
         <button class="mode-tab active" id="tab-practice">🎯 DENEME</button>
         <button class="mode-tab comp-tab" id="tab-comp">🏆 YARIŞMA</button>
         <button class="mode-tab battle-tab" id="tab-battle">⚔️ KAPIŞMA</button>
-        <button class="mode-tab sprint-tab" id="tab-sprint">🏃 SPRİNT</button>
       </div>
 
       <!-- DENEME PANELİ -->
@@ -1743,21 +2342,55 @@
 
       <!-- YARIŞMA PANELİ -->
       <div id="comp-info">
-        <div class="comp-info-row">
-          <span>KELIMELER</span>
-          <span class="comp-info-val">4 · 5 · 6 · 7 HARFLİ</span>
+        <div id="comp-subtabs">
+          <button class="comp-subtab active" id="subtab-klasik">⭐ KLASİK</button>
+          <button class="comp-subtab" id="subtab-sprint">⚡ SPRİNT</button>
         </div>
-        <div class="comp-info-row">
-          <span>TAHMİN HAKKI</span>
-          <span class="comp-info-val">6 (sabit)</span>
+        <div id="klasik-panel">
+          <div class="comp-info-row">
+            <span>KELIMELER</span>
+            <span class="comp-info-val">4 · 5 · 6 · 7 HARFLİ</span>
+          </div>
+          <div class="comp-info-row">
+            <span>TAHMİN HAKKI</span>
+            <span class="comp-info-val">6 (sabit)</span>
+          </div>
+          <div class="comp-info-row">
+            <span>SÜRE</span>
+            <span class="comp-info-val" id="comp-time-val">— DK</span>
+          </div>
+          <div class="comp-info-row" style="margin-top:4px">
+            <span class="comp-badge">⭐ PUANLAMA AKTİF</span>
+            <span class="comp-badge">🔒 SABİT AYARLAR</span>
+          </div>
         </div>
-        <div class="comp-info-row">
-          <span>SÜRE</span>
-          <span class="comp-info-val" id="comp-time-val">— DK</span>
-        </div>
-        <div class="comp-info-row" style="margin-top:4px">
-          <span class="comp-badge">⭐ PUANLAMA AKTİF</span>
-          <span class="comp-badge">🔒 SABİT AYARLAR</span>
+        <div id="sprint-panel">
+          <div class="setup-label" style="width:100%;text-align:left;padding-left:2px;margin-bottom:-8px">HARF SAYISI SEÇ</div>
+          <div class="length-toggle-group">
+            <button class="length-btn sprint-len-btn" data-slen="4">
+              <span class="len-num">4</span>
+              <span class="len-label">HARFLİ</span>
+            </button>
+            <button class="length-btn sprint-len-btn" data-slen="5">
+              <span class="len-num">5</span>
+              <span class="len-label">HARFLİ</span>
+            </button>
+            <button class="length-btn sprint-len-btn" data-slen="6">
+              <span class="len-num">6</span>
+              <span class="len-label">HARFLİ</span>
+            </button>
+            <button class="length-btn sprint-len-btn" data-slen="7">
+              <span class="len-num">7</span>
+              <span class="len-label">HARFLİ</span>
+            </button>
+          </div>
+          <div class="comp-info-row" style="margin-top:6px">
+            <span>HER UZUNLUK</span>
+            <span class="comp-info-val" style="color:var(--amber-500)">5 DAKİKA</span>
+          </div>
+          <div class="comp-info-row">
+            <span class="comp-badge" style="color:var(--amber-500);border-color:var(--amber-500);background:transparent">🏃 PUANLAMA YOK — HIZLILIK ESASI</span>
+          </div>
         </div>
       </div>
 
@@ -1777,36 +2410,6 @@
         </div>
         <div class="comp-info-row" style="margin-top:4px">
           <span class="comp-badge" style="color:var(--danger);border-color:var(--danger);background:transparent">⚔️ OTOMATİK EŞLEŞTİRME</span>
-        </div>
-      </div>
-
-      <!-- SPRİNT PANELİ -->
-      <div id="sprint-panel">
-        <div class="setup-label" style="width:100%;text-align:left;padding-left:2px;margin-bottom:-8px">HARF SAYISI SEÇ</div>
-        <div class="length-toggle-group">
-          <button class="length-btn sprint-len-btn" data-slen="4">
-            <span class="len-num">4</span>
-            <span class="len-label">HARFLİ</span>
-          </button>
-          <button class="length-btn sprint-len-btn" data-slen="5">
-            <span class="len-num">5</span>
-            <span class="len-label">HARFLİ</span>
-          </button>
-          <button class="length-btn sprint-len-btn" data-slen="6">
-            <span class="len-num">6</span>
-            <span class="len-label">HARFLİ</span>
-          </button>
-          <button class="length-btn sprint-len-btn" data-slen="7">
-            <span class="len-num">7</span>
-            <span class="len-label">HARFLİ</span>
-          </button>
-        </div>
-        <div class="comp-info-row" style="margin-top:6px">
-          <span>HER UZUNLUK</span>
-          <span class="comp-info-val" style="color:var(--amber-500)">5 DAKİKA</span>
-        </div>
-        <div class="comp-info-row">
-          <span class="comp-badge" style="color:var(--amber-500);border-color:var(--amber-500);background:transparent">🏃 PUANLAMA YOK — HIZLILIK ESASI</span>
         </div>
       </div>
 
@@ -3363,7 +3966,10 @@
     const guess = guessChars.join('');
     const allWords = WORDS4.concat(WORDS5).concat(WORDS6).concat(WORDS7);
 
-    if (!allWords.includes(guess)) {
+    // Macera modunda hedef kelime her zaman geçerli
+    const isValidWord = STATE.isAdventureMode ? true : allWords.includes(guess);
+
+    if (!isValidWord) {
       showToast('KELİME BULUNAMADI');
       shakeRow(row);
       SFX.error();
@@ -3575,6 +4181,15 @@
       return;
     }
 
+    // Macera modu hook
+    if (STATE.isAdventureMode) {
+      STATE.gameOver = true;
+      STATE.gameWon = won;
+      SFX.stopHeartbeat();
+      setTimeout(() => handleAdventureGameEnd(won), 500);
+      return;
+    }
+
     STATE.gameOver = true;
     STATE.gameWon = won;
 
@@ -3663,6 +4278,7 @@
     const descEl  = document.getElementById('overlay-desc');
 
     const isNewRecord = STATE.isCompetitionMode ? checkAndUpdateBest() : false;
+    if (STATE.isCompetitionMode) saveCompScore(STATE.score);
     title.textContent = 'TÜMÜNÜ KIRDIN!';
     title.className = 'win';
     wordEl.textContent = STATE.isCompetitionMode ? STATE.score + ' PUAN' : '🎯 TEBRIKLER!';
@@ -3776,6 +4392,13 @@
     'KeyN':'n','KeyM':'m','Comma':'ö','Period':'ç',
   };
 
+  // CAPTURE PHASE: input odaklandığında oyun klavyesini tamamen engelle
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      e.stopImmediatePropagation();
+    }
+  }, true);
+
   document.addEventListener('keydown', e => {
     SFX.unlock(); // AudioContext'i ilk tuş basımında etkinleştir
     if (STATE.gameOver || STATE.isAnimating) return;
@@ -3818,8 +4441,13 @@
   function updateSetupUI() {
     const startBtn = document.getElementById('btn-start-game');
     if (currentSetupMode === 'competition') {
-      startBtn.disabled = false;
-      startBtn.textContent = 'BAŞLAT';
+      if (currentCompSubMode === 'sprint') {
+        startBtn.disabled = sprintSelectedLengths.size === 0;
+        startBtn.textContent = '⚡ SPRİNT BAŞLAT';
+      } else {
+        startBtn.disabled = false;
+        startBtn.textContent = '⭐ KLASİK BAŞLAT';
+      }
       return;
     }
     if (currentSetupMode === 'battle') {
@@ -3827,16 +4455,11 @@
       startBtn.textContent = '⚔️ KAPIŞMA BAŞLAT';
       return;
     }
-    if (currentSetupMode === 'sprint') {
-      startBtn.disabled = sprintSelectedLengths.size === 0;
-      startBtn.textContent = '🏃 SPRİNT BAŞLAT';
-      return;
-    }
     startBtn.textContent = 'BAŞLAT';
     // practice mode
     if (selectedLengths.size === 0) {
       startBtn.disabled = true;
-      timeVal.textContent = '—';
+      document.getElementById('time-val').textContent = '—';
       return;
     }
     startBtn.disabled = false;
@@ -3846,16 +4469,25 @@
     }
   }
 
+  let currentCompSubMode = 'klasik';
+
+  function switchCompSubMode(sub) {
+    currentCompSubMode = sub;
+    document.getElementById('subtab-klasik').classList.toggle('active', sub === 'klasik');
+    document.getElementById('subtab-sprint').classList.toggle('active', sub === 'sprint');
+    document.getElementById('klasik-panel').classList.toggle('hidden', sub !== 'klasik');
+    document.getElementById('sprint-panel').classList.toggle('visible', sub === 'sprint');
+    updateSetupUI();
+  }
+
   function switchSetupMode(mode) {
     currentSetupMode = mode;
     document.getElementById('tab-practice').classList.toggle('active', mode === 'practice');
     document.getElementById('tab-comp').classList.toggle('active', mode === 'competition');
     document.getElementById('tab-battle').classList.toggle('active', mode === 'battle');
-    document.getElementById('tab-sprint').classList.toggle('active', mode === 'sprint');
     document.getElementById('practice-panel').classList.toggle('hidden', mode !== 'practice');
     document.getElementById('comp-info').classList.toggle('visible', mode === 'competition');
     document.getElementById('battle-panel').classList.toggle('visible', mode === 'battle');
-    document.getElementById('sprint-panel').classList.toggle('visible', mode === 'sprint');
 
     if (mode === 'competition') {
       const secs = calcSeconds(COMP_LENGTHS);
@@ -3864,10 +4496,34 @@
     updateSetupUI();
   }
 
+  function requireAuth(action) {
+    if (currentUser()) { action(); return; }
+    if (window.Capacitor) {
+      showToast('Bu mod için web sürümünde Google ile giriş yapmalısın 🔒\ndilbaz-a802b.web.app', 3000);
+      return;
+    }
+    showToast('Bu mod için Google ile giriş yapmalısın 🔒', 2200);
+    flashGoogleBtn();
+  }
+
+  function flashGoogleBtn() {
+    // Kullanıcıyı Google butonuna yönlendir (setup kapatıp landing'e dön)
+    hideSetup();
+    showLanding();
+    const btn = document.getElementById('btn-landing-google');
+    btn.style.transition = 'none';
+    btn.style.boxShadow = '0 0 0 3px var(--primary)';
+    setTimeout(() => {
+      btn.style.transition = 'box-shadow 600ms';
+      btn.style.boxShadow = '';
+    }, 800);
+  }
+
   document.getElementById('tab-practice').addEventListener('click', () => switchSetupMode('practice'));
-  document.getElementById('tab-comp').addEventListener('click', () => switchSetupMode('competition'));
-  document.getElementById('tab-battle').addEventListener('click', () => switchSetupMode('battle'));
-  document.getElementById('tab-sprint').addEventListener('click', () => switchSetupMode('sprint'));
+  document.getElementById('tab-comp').addEventListener('click',     () => requireAuth(() => switchSetupMode('competition')));
+  document.getElementById('tab-battle').addEventListener('click',   () => requireAuth(() => switchSetupMode('battle')));
+  document.getElementById('subtab-klasik').addEventListener('click', () => switchCompSubMode('klasik'));
+  document.getElementById('subtab-sprint').addEventListener('click', () => switchCompSubMode('sprint'));
 
   document.querySelectorAll('.length-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3991,15 +4647,21 @@
   makeHoldBtn('time-inc', +1);
 
   document.getElementById('btn-start-game').addEventListener('click', () => {
+    if ((currentSetupMode === 'competition' || currentSetupMode === 'battle') && !currentUser()) {
+      requireAuth(() => {});
+      return;
+    }
     if (currentSetupMode === 'competition') {
-      hideSetup();
-      startGame(COMP_LENGTHS, true);
+      if (currentCompSubMode === 'sprint') {
+        if (sprintSelectedLengths.size === 0) return;
+        hideSetup();
+        startSprint([...sprintSelectedLengths].sort((a, b) => a - b));
+      } else {
+        hideSetup();
+        startGame(COMP_LENGTHS, true);
+      }
     } else if (currentSetupMode === 'battle') {
       startMatchmaking();
-    } else if (currentSetupMode === 'sprint') {
-      if (sprintSelectedLengths.size === 0) return;
-      hideSetup();
-      startSprint([...sprintSelectedLengths].sort((a, b) => a - b));
     } else {
       if (selectedLengths.size === 0) return;
       hideSetup();
@@ -4033,6 +4695,11 @@
 
   document.getElementById('btn-settings').addEventListener('click', openSettings);
   document.getElementById('btn-settings-from-setup').addEventListener('click', openSettings);
+
+  document.getElementById('btn-home-from-setup').addEventListener('click', () => {
+    hideSetup();
+    showLanding();
+  });
 
   document.getElementById('btn-settings-close').addEventListener('click', () => {
     document.getElementById('settings-overlay').classList.remove('visible');
@@ -4069,15 +4736,47 @@
     renderAttemptSpinner();
     renderTimeSpinner();
     updateSetupUI();
-    showSetup();
+
+    // Landing sayfasını göster (setup overlay'i kapalı tut)
+    document.getElementById('setup-overlay').classList.remove('visible');
+    initAdventureMode();
+    adventureRenderChapters();
   });
 
   // ═══════════════════════════════════════════════════
-  // FİREBASE & KAPIŞMA SİSTEMİ
+  // LANDING PAGE
   // ═══════════════════════════════════════════════════
+  function showLanding() {
+    const ls = document.getElementById('landing-screen');
+    ls.classList.remove('hidden');
+  }
 
+  function hideLanding() {
+    const ls = document.getElementById('landing-screen');
+    ls.classList.add('hidden');
+  }
+
+  document.getElementById('btn-landing-play').addEventListener('click', () => {
+    hideLanding();
+    showSetup();
+  });
+
+  document.getElementById('btn-landing-adventure').addEventListener('click', () => {
+    hideLanding();
+    openAdventureOverlay();
+  });
+
+  document.getElementById('btn-landing-settings').addEventListener('click', () => {
+    openSettings();
+  });
+
+  document.getElementById('btn-landing-leaderboard').addEventListener('click', () => {
+    openLeaderboard();
+  });
+
+  // ── Firebase ─────────────────────────────────────────────────────────────
   firebase.initializeApp({
-    apiKey: "AIzaSyB0ZjfmJ3Esnd_srUogF6spsFLnrA2YStk",
+    apiKey: "AIzaSyB0Zjfmj3Esnd_srUogF6spsFLnrA2YStk",
     authDomain: "dilbaz-a802b.firebaseapp.com",
     databaseURL: "https://dilbaz-a802b-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "dilbaz-a802b",
@@ -4085,7 +4784,573 @@
     messagingSenderId: "886055952920",
     appId: "1:886055952920:web:aab568b8de9b06131cd96d"
   });
-  const db = firebase.database();
+  const db   = firebase.database();
+  const auth = firebase.auth();
+
+  // Redirect sonucu yakala (sayfa yeniden yüklendikten sonra)
+  auth.getRedirectResult().then(result => {
+    if (result && result.user) updateLandingAuthUI(result.user);
+  }).catch(() => {});
+
+  document.getElementById('btn-landing-google').addEventListener('click', () => {
+    if (window.Capacitor) {
+      showToast('Google girişi sadece web sürümünde: dilbaz-a802b.web.app', 3500);
+      return;
+    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    showToast('Google giriş penceresi açılıyor...', 1500);
+    auth.signInWithPopup(provider)
+      .then(result => {
+        if (result && result.user) updateLandingAuthUI(result.user);
+      })
+      .catch(err => {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+          showToast('Popup bloke — sayfa yönlendiriliyor...', 1800);
+          auth.signInWithRedirect(provider).catch(() => {});
+        } else if (err.code === 'auth/cancelled-popup-request') {
+          // Birden fazla popup isteği — yoksay
+        } else if (err.code === 'auth/operation-not-allowed') {
+          showToast('Firebase Console\'dan Google girişini aktif et!', 3000);
+        } else {
+          showToast('Giriş hatası: ' + err.code, 2500);
+        }
+      });
+  });
+
+  document.getElementById('btn-landing-logout').addEventListener('click', () => {
+    auth.signOut().catch(() => {});
+  });
+
+  function updateGuestBtn() {
+    const nick = localStorage.getItem(LB_NICK_KEY);
+    const btn = document.getElementById('btn-landing-guest');
+    const row = document.getElementById('guest-nick-row');
+    const lbl = document.getElementById('guest-nick-label');
+    if (nick && !auth.currentUser) {
+      btn.textContent = '👤 ' + nick + ' olarak devam et';
+      row.style.display = 'block';
+      lbl.textContent = nick;
+    } else {
+      btn.textContent = '👤 Misafir Olarak Devam Et';
+      row.style.display = 'none';
+    }
+  }
+
+  document.getElementById('btn-change-guest-nick').addEventListener('click', (e) => {
+    e.stopPropagation();
+    _nickModalMode = 'guest';
+    document.getElementById('nick-input').value = localStorage.getItem(LB_NICK_KEY) || '';
+    document.getElementById('nick-modal').classList.add('visible');
+    setTimeout(() => document.getElementById('nick-input').focus(), 150);
+  });
+
+  document.getElementById('btn-landing-guest').addEventListener('click', () => {
+    const existing = localStorage.getItem(LB_NICK_KEY);
+    if (existing) {
+      // Nick zaten var, direkt devam et
+      hideLanding();
+      showSetup();
+    } else {
+      // İlk kez — nick gir
+      hideLanding();
+      _nickModalMode = 'guest';
+      document.getElementById('nick-input').value = '';
+      document.getElementById('nick-modal').classList.add('visible');
+      setTimeout(() => document.getElementById('nick-input').focus(), 150);
+    }
+  });
+
+  // Yeni oyun butonuna basınca landing'e dön değil, setup aç
+  // (mevcut davranış korunuyor)
+
+  // ═══════════════════════════════════════════════════
+  // MACERA MODU
+  // ═══════════════════════════════════════════════════
+  const ADV_KEY = 'kodkirici_adv';
+
+  // Bölüm tanımları
+  const ADV_CHAPTERS = [
+    { id: 1, name: 'BAŞLANGIÇ',    icon: '🌱', desc: '4 harfli kolay kelimeler',   len: 4, words: ['kale','gece','dans','alan','dost','umut','hava','kaya','arpa','lale'] },
+    { id: 2, name: 'HAFIZA',       icon: '🧠', desc: '5 harfli orta zorluk',        len: 5, words: ['kitap','kalem','deniz','güneş','orman','hayat','zaman','şeker','kahve','bebek'] },
+    { id: 3, name: 'KEŞİF',        icon: '🔭', desc: '4-5 harfli karışık',          len: null, words: ['park','kedi','atlas','nehir','balık','irmak','yılan','çiçek','ekmek','çorba'] },
+    { id: 4, name: 'SÖZCÜK USTASI',icon: '📖', desc: '5 harfli zor kelimeler',     len: 5, words: ['sabır','kural','hayal','neden','cesur','ileri','merak','karar','fırın','pilot'] },
+    { id: 5, name: 'DOĞA',         icon: '🌿', desc: '6 harfli doğa kelimeleri',   len: 6, words: ['mercan','körfez','volkan','şimşek','kumsal','gelgit','tarla','mantar','zeytin','karpuz'] },
+    { id: 6, name: 'TOPLUM',       icon: '🏛️', desc: '6 harfli sosyal kelimeler',  len: 6, words: ['devlet','toplum','bayrak','adalet','kültür','sözlük','market','sinema','gazete','bayram'] },
+    { id: 7, name: 'SANAT',        icon: '🎨', desc: '6-7 harfli sanat dünyası',   len: null, words: ['tasarım','gösteri','bulmaca','sanatçı','şarkıcı','tarihçi','oyuncu','makarna','pencere','fabrika'] },
+    { id: 8, name: 'BİLİM',        icon: '🔬', desc: '7 harfli bilim terimleri',   len: 7, words: ['akademi','ekonomi','anayasa','gelişme','dönüşüm','görüntü','katılım','konuşma','seyahat','hareket'] },
+    { id: 9, name: 'EFSANE',       icon: '⚔️', desc: 'Zor 7 harfli kelimeler',     len: 7, words: ['yalancı','yararlı','zorunlu','kıskanç','çaresiz','açgözlü','çalışma','anlaşma','alışkın','atlatma'] },
+    { id: 10, name: 'ŞAMPIYON',    icon: '🏆', desc: 'En zor kelimeler - Final!',  len: null, words: ['çöküntü','görüşme','kalıntı','savaşçı','güreşçi','öğrenci','yetenek','seçenek','özgüven','cesaret'] },
+  ];
+
+  // Her bölümde kaç kelime çözülmeli?
+  const ADV_WORDS_PER_CHAPTER = 3;
+
+  let ADV_STATE = {
+    progress: {}, // { chapterId: { solved: 0, completed: false } }
+    currentChapter: null,
+    currentWordIdx: 0,
+    isAdventureGame: false,
+  };
+
+  function initAdventureMode() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(ADV_KEY) || '{}');
+      ADV_STATE.progress = saved.progress || {};
+    } catch { ADV_STATE.progress = {}; }
+    // İlk bölüm her zaman açık
+    if (!ADV_STATE.progress[1]) ADV_STATE.progress[1] = { solved: 0, completed: false };
+  }
+
+  function saveAdventureProgress() {
+    localStorage.setItem(ADV_KEY, JSON.stringify({ progress: ADV_STATE.progress }));
+  }
+
+  function adventureGetStatus(chapterId) {
+    const prog = ADV_STATE.progress[chapterId];
+    if (!prog) return 'locked';
+    if (prog.completed) return 'completed';
+    return 'active';
+  }
+
+  function adventureRenderChapters() {
+    const container = document.getElementById('adv-chapters-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let completedCount = 0;
+    ADV_CHAPTERS.forEach(ch => {
+      const status = adventureGetStatus(ch.id);
+      if (status === 'completed') completedCount++;
+
+      const div = document.createElement('div');
+      div.className = 'adv-chapter ' + status;
+
+      const prog = ADV_STATE.progress[ch.id];
+      const solvedCount = prog ? prog.solved : 0;
+
+      let badgeClass, badgeText;
+      if (status === 'completed') { badgeClass = 'done'; badgeText = '✓ TAMAM'; }
+      else if (status === 'active') { badgeClass = 'go'; badgeText = `${solvedCount}/${ADV_WORDS_PER_CHAPTER} → GİT`; }
+      else { badgeClass = 'lock'; badgeText = '🔒'; }
+
+      div.innerHTML = `
+        <div class="adv-chapter-icon">${ch.icon}</div>
+        <div class="adv-chapter-info">
+          <div class="adv-chapter-name">${ch.id}. ${ch.name}</div>
+          <div class="adv-chapter-desc">${ch.desc}</div>
+        </div>
+        <div class="adv-chapter-badge ${badgeClass}">${badgeText}</div>
+      `;
+
+      if (status !== 'locked') {
+        div.addEventListener('click', () => startAdventureChapter(ch.id));
+      }
+      container.appendChild(div);
+    });
+
+    // Progress bar
+    const pct = Math.round((completedCount / ADV_CHAPTERS.length) * 100);
+    document.getElementById('adv-progress-fill').style.width = pct + '%';
+    document.getElementById('adv-progress-lbl').textContent =
+      completedCount + ' / ' + ADV_CHAPTERS.length + ' BÖLÜM TAMAMLANDI';
+  }
+
+  function openAdventureOverlay() {
+    adventureRenderChapters();
+    document.getElementById('adventure-overlay').classList.add('visible');
+  }
+
+  function closeAdventureOverlay() {
+    document.getElementById('adventure-overlay').classList.remove('visible');
+    showLanding();
+  }
+
+  document.getElementById('btn-adv-close').addEventListener('click', closeAdventureOverlay);
+  document.getElementById('adventure-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('adventure-overlay')) closeAdventureOverlay();
+  });
+
+  function startAdventureChapter(chapterId) {
+    const ch = ADV_CHAPTERS.find(c => c.id === chapterId);
+    if (!ch) return;
+
+    // İlerleme baştan mı başlasın kontrolü
+    const prog = ADV_STATE.progress[chapterId];
+    if (prog && prog.completed) {
+      ADV_STATE.progress[chapterId].solved = 0;
+      ADV_STATE.progress[chapterId].completed = false;
+      saveAdventureProgress();
+    }
+
+    ADV_STATE.currentChapter = chapterId;
+    ADV_STATE.currentWordIdx = ADV_STATE.progress[chapterId] ? ADV_STATE.progress[chapterId].solved : 0;
+    ADV_STATE.isAdventureGame = true;
+
+    // Overlay'leri doğrudan kapat (closeAdventureOverlay kullanmıyoruz —
+    // o showLanding çağırıyor, biz oyuna geçiyoruz)
+    document.getElementById('adventure-overlay').classList.remove('visible');
+    document.getElementById('landing-screen').classList.add('hidden');
+
+    // Oyunu macera modunda başlat
+    const word = ch.words[ADV_STATE.currentWordIdx % ch.words.length];
+    const wordLen = [...word].length;
+
+    STATE.isCompetitionMode = false;
+    STATE.isAdventureMode = true;
+    STATE.isBattleMode = false;
+    STATE.isSprintMode = false;
+    const saved = loadStats();
+    STATE.bestScore = saved.bestScore;
+    STATE.score = 0;
+    STATE.currentLengthIdx = 0;
+    STATE.canContinue = false;
+    ACTIVE_LENGTHS = [wordLen];
+    ACTIVE_WORDS = wordLen === 4 ? WORDS4 : wordLen === 5 ? WORDS5 : wordLen === 6 ? WORDS6 : WORDS7;
+    STATE.baseMaxRows = 6;
+    STATE.timerUnlimited = true;
+    STATE.timerTotal = 0;
+    STATE.timerLeft = 0;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+
+    // Skor/rekor gizle
+    document.getElementById('score-display').style.visibility = 'hidden';
+    document.getElementById('best-display').style.visibility = 'hidden';
+
+    hideSetup();
+    hideOverlay();
+    initRound(word);
+    updateScoreDisplay();
+    updateTimerDisplay();
+  }
+
+  STATE.isAdventureMode = false;
+
+
+  // Macera modu oyun sonu: overlay'de "Sonraki Bölüm" butonu göster
+  function handleAdventureGameEnd(won) {
+    if (!STATE.isAdventureMode) return false;
+
+    const chapterId = ADV_STATE.currentChapter;
+    const ch = ADV_CHAPTERS.find(c => c.id === chapterId);
+
+    const completeOverlay = document.getElementById('adv-complete-overlay');
+    const wordEl = document.getElementById('adv-complete-word');
+    const descEl = document.getElementById('adv-complete-desc');
+    const iconEl = document.getElementById('adv-complete-icon');
+    const titleEl = document.getElementById('adv-complete-title');
+    const nextBtn = document.getElementById('btn-adv-next');
+
+    wordEl.textContent = turkishUpper(STATE.targetWord);
+
+    if (won) {
+      iconEl.textContent = '🎉';
+      titleEl.textContent = 'ŞİFRE KIRILDI!';
+      SFX.applause(2, 0.4);
+      launchConfetti(60);
+
+      // İlerleme güncelle
+      if (!ADV_STATE.progress[chapterId]) ADV_STATE.progress[chapterId] = { solved: 0, completed: false };
+      ADV_STATE.progress[chapterId].solved++;
+      ADV_STATE.currentWordIdx++;
+
+      const solved = ADV_STATE.progress[chapterId].solved;
+      const remaining = ADV_WORDS_PER_CHAPTER - solved;
+
+      if (solved >= ADV_WORDS_PER_CHAPTER) {
+        // Bölüm tamamlandı!
+        ADV_STATE.progress[chapterId].completed = true;
+        // Sonraki bölümü aç
+        const nextId = chapterId + 1;
+        if (nextId <= ADV_CHAPTERS.length) {
+          if (!ADV_STATE.progress[nextId]) ADV_STATE.progress[nextId] = { solved: 0, completed: false };
+        }
+        saveAdventureProgress();
+        descEl.textContent = ch.name + ' BÖLÜMÜ TAMAMLANDI! 🏆';
+        nextBtn.textContent = nextId <= ADV_CHAPTERS.length ? 'SONRAKİ BÖLÜM →' : 'HARİTAYA DÖN';
+        nextBtn.dataset.action = nextId <= ADV_CHAPTERS.length ? 'next' : 'map';
+      } else {
+        saveAdventureProgress();
+        descEl.textContent = `${remaining} kelime daha!`;
+        nextBtn.textContent = 'DEVAM ET →';
+        nextBtn.dataset.action = 'continue';
+      }
+    } else {
+      iconEl.textContent = '😔';
+      titleEl.textContent = 'BAŞARISIZ';
+      descEl.textContent = 'Tekrar deneyelim!';
+      nextBtn.textContent = 'TEKRAR DENE';
+      nextBtn.dataset.action = 'retry';
+      SFX.lose();
+    }
+
+    completeOverlay.classList.add('visible');
+    return true;
+  }
+
+  document.getElementById('btn-adv-next').addEventListener('click', () => {
+    const overlay = document.getElementById('adv-complete-overlay');
+    overlay.classList.remove('visible');
+    hideOverlay();
+    const action = document.getElementById('btn-adv-next').dataset.action;
+
+    if (action === 'continue') {
+      // Aynı bölümde devam
+      startAdventureChapter(ADV_STATE.currentChapter);
+    } else if (action === 'next') {
+      // Sonraki bölüm
+      startAdventureChapter(ADV_STATE.currentChapter + 1);
+    } else if (action === 'retry') {
+      startAdventureChapter(ADV_STATE.currentChapter);
+    } else {
+      // map
+      STATE.isAdventureMode = false;
+      openAdventureOverlay();
+    }
+  });
+
+  document.getElementById('btn-adv-back').addEventListener('click', () => {
+    document.getElementById('adv-complete-overlay').classList.remove('visible');
+    hideOverlay();
+    STATE.isAdventureMode = false;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+    openAdventureOverlay();
+  });
+
+
+  // ═══════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════
+  // SIRALAMA (Leaderboard)
+  // ═══════════════════════════════════════════════════
+  const LB_NICK_KEY = 'kk_nick';
+  const LB_PID_KEY  = 'kk_pid_lb';
+  let _lbTab = 'comp'; // 'comp' | 'battle'
+
+  const NICK_ADJ  = ['HIZLI','GÜÇLÜ','AKILLI','CESUR','USTA','DELİ','KRAL','YILDIZ','GİZEMCE','ALEVLI'];
+  const NICK_NOUN = ['KARTAL','ASLAN','KURT','KAPLAN','PANTER','TILKI','EJDER','GÖLGE','FIRTINA','ATEŞ'];
+
+  function getLbPlayerId() {
+    let id = localStorage.getItem(LB_PID_KEY);
+    if (!id) {
+      id = Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+      localStorage.setItem(LB_PID_KEY, id);
+    }
+    return id;
+  }
+
+  function getPlayerNick() {
+    let nick = localStorage.getItem(LB_NICK_KEY);
+    if (!nick) {
+      nick = NICK_ADJ[Math.floor(Math.random()*NICK_ADJ.length)]
+           + '_' + NICK_NOUN[Math.floor(Math.random()*NICK_NOUN.length)];
+      localStorage.setItem(LB_NICK_KEY, nick);
+    }
+    return nick;
+  }
+
+  function saveCompScore(score) {
+    if (!score || score <= 0) return;
+    const pid  = getActivePid();
+    const nick = getActiveNick();
+    const ref  = db.ref(`kk_lb/comp/${pid}`);
+    ref.once('value').then(snap => {
+      const prev = snap.val();
+      if (!prev || score > (prev.score || 0)) {
+        ref.set({ nick, score, ts: Date.now() }).catch(() => {});
+      } else {
+        // Skor düşük/eşit ama nick değişmiş olabilir — sadece nick güncelle
+        ref.update({ nick }).catch(() => {});
+      }
+    }).catch(() => {});
+  }
+
+  function saveBattleResult(won) {
+    const pid  = getActivePid();
+    const nick = getActiveNick();
+    const ref  = db.ref(`kk_lb/battle/${pid}`);
+    ref.once('value').then(snap => {
+      const prev = snap.val() || { won: 0, lost: 0 };
+      ref.set({
+        nick,
+        won:  (prev.won  || 0) + (won ? 1 : 0),
+        lost: (prev.lost || 0) + (won ? 0 : 1),
+        ts: Date.now()
+      }).catch(() => {});
+    }).catch(() => {});
+  }
+
+  function openLeaderboard() {
+    hideLanding();
+    // Google ile giriş yapılmışsa direkt aç
+    if (currentUser()) {
+      showLeaderboard();
+      return;
+    }
+    // Misafir — nick var mı?
+    const existing = localStorage.getItem(LB_NICK_KEY);
+    if (!existing) {
+      _nickModalMode = 'open';
+      document.getElementById('nick-input').value = '';
+      document.getElementById('nick-modal').classList.add('visible');
+      setTimeout(() => document.getElementById('nick-input').focus(), 150);
+    } else {
+      showLeaderboard();
+    }
+  }
+
+  function showLeaderboard() {
+    document.getElementById('lb-overlay').classList.add('visible');
+    document.getElementById('lb-my-nick').textContent = getActiveNick();
+    // Misafirse DEĞİŞTİR görünsün, Google kullanıcısıysa gizle
+    document.getElementById('btn-change-nick').style.display = currentUser() ? 'none' : '';
+    switchLbTab(_lbTab);
+  }
+
+  let _nickModalMode = 'open'; // 'open' | 'change'
+
+  function saveNickAndContinue() {
+    const raw = document.getElementById('nick-input').value;
+    const clean = raw.trim().toUpperCase().replace(/[^A-ZÇĞIİÖŞÜ0-9_\- ]/gi, '').replace(/\s+/g, '_').slice(0, 16);
+    if (!clean) {
+      document.getElementById('nick-input').style.borderColor = 'var(--danger)';
+      setTimeout(() => document.getElementById('nick-input').style.borderColor = '', 600);
+      return;
+    }
+    localStorage.setItem(LB_NICK_KEY, clean);
+    document.getElementById('nick-modal').classList.remove('visible');
+    // Firebase güncelle — update() ile sadece nick alanını yaz (skor/istatistik korunur)
+    const pid = getLbPlayerId();
+    db.ref(`kk_lb/comp/${pid}`).update({ nick: clean }).catch(() => {});
+    db.ref(`kk_lb/battle/${pid}`).update({ nick: clean }).catch(() => {});
+    if (_nickModalMode === 'change') {
+      document.getElementById('lb-my-nick').textContent = clean;
+      document.getElementById('lb-overlay').classList.add('visible');
+      loadLbData(_lbTab);
+    } else if (_nickModalMode === 'guest') {
+      updateGuestBtn();
+      hideLanding();
+      showSetup();
+    } else {
+      // 'open' — liderboard
+      showLeaderboard();
+    }
+  }
+
+  document.getElementById('btn-nick-save').addEventListener('click', saveNickAndContinue);
+  document.getElementById('nick-input').addEventListener('keydown', e => {
+    e.stopPropagation(); // global keydown handler'ı engelle
+    if (e.key === 'Enter') saveNickAndContinue();
+  });
+
+  function switchLbTab(tab) {
+    _lbTab = tab;
+    document.getElementById('lb-tab-comp').classList.toggle('active', tab === 'comp');
+    document.getElementById('lb-tab-battle').classList.toggle('active', tab === 'battle');
+    document.getElementById('lb-col-val').textContent = tab === 'comp' ? 'PUAN' : 'G / M';
+    loadLbData(tab);
+  }
+
+  function loadLbData(tab) {
+    document.getElementById('lb-loading').style.display = 'block';
+    document.getElementById('lb-table').style.display = 'none';
+    document.getElementById('lb-empty').style.display = 'none';
+
+    const ref = db.ref(`kk_lb/${tab}`);
+    ref.once('value').then(snap => {
+      document.getElementById('lb-loading').style.display = 'none';
+      if (!snap || !snap.exists()) {
+        document.getElementById('lb-empty').style.display = 'block';
+        return;
+      }
+      const rows = [];
+      snap.forEach(child => {
+        const d = child.val();
+        rows.push({ pid: child.key, nick: d.nick || '?', score: d.score || 0, won: d.won || 0, lost: d.lost || 0 });
+      });
+
+      // Sırala
+      if (tab === 'comp') rows.sort((a, b) => b.score - a.score);
+      else rows.sort((a, b) => b.won - a.won || a.lost - b.lost);
+
+      const myPid = getLbPlayerId();
+      const tbody = document.getElementById('lb-tbody');
+      tbody.innerHTML = '';
+      rows.slice(0, 50).forEach((r, i) => {
+        const rank = i + 1;
+        const isMe = r.pid === myPid;
+        const tr = document.createElement('tr');
+        if (isMe) tr.className = 'lb-me';
+        const rankLabel = rank <= 3
+          ? `<span class="lb-rank lb-rank-${rank}">${['🥇','🥈','🥉'][rank-1]}</span>`
+          : `<span class="lb-rank">${rank}</span>`;
+        const valCell = tab === 'comp'
+          ? `<strong>${r.score}</strong>`
+          : `<strong style="color:var(--neon-green,#00ff9f)">${r.won}</strong> / ${r.lost}`;
+        tr.innerHTML = `<td>${rankLabel}</td><td>${r.nick}</td><td>${valCell}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('lb-table').style.display = rows.length ? 'table' : 'none';
+      document.getElementById('lb-empty').style.display = rows.length ? 'none' : 'block';
+    }).catch(() => {
+      document.getElementById('lb-loading').style.display = 'none';
+      document.getElementById('lb-empty').style.display = 'block';
+      document.getElementById('lb-empty').textContent = 'Bağlantı hatası.';
+    });
+  }
+
+  function closeLbOverlay() {
+    document.getElementById('lb-overlay').classList.remove('visible');
+    if (!STATE.targetWord || STATE.gameOver) showLanding();
+  }
+
+  document.getElementById('lb-tab-comp').addEventListener('click', () => switchLbTab('comp'));
+  document.getElementById('lb-tab-battle').addEventListener('click', () => switchLbTab('battle'));
+  document.getElementById('btn-lb-close').addEventListener('click', closeLbOverlay);
+  document.getElementById('lb-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('lb-overlay')) closeLbOverlay();
+  });
+  document.getElementById('btn-change-nick').addEventListener('click', () => {
+    _nickModalMode = 'change';
+    document.getElementById('nick-input').value = getPlayerNick();
+    document.getElementById('lb-overlay').classList.remove('visible');
+    document.getElementById('nick-modal').classList.add('visible');
+    setTimeout(() => document.getElementById('nick-input').focus(), 150);
+  });
+
+  // ── Auth yardımcıları ──────────────────────────────────────────────────────
+  function currentUser() { return auth.currentUser; }
+
+  function getActivePid() {
+    const u = currentUser();
+    return u ? u.uid : getLbPlayerId();
+  }
+
+  function getActiveNick() {
+    const u = currentUser();
+    return u ? (u.displayName || u.email?.split('@')[0] || 'OYUNCU') : getPlayerNick();
+  }
+
+  function updateLandingAuthUI(user) {
+    const guestArea = document.getElementById('landing-auth-guest');
+    const userArea  = document.getElementById('landing-auth-user');
+    if (user) {
+      guestArea.style.display = 'none';
+      userArea.style.display  = 'block';
+      document.getElementById('landing-user-name').textContent = user.displayName || user.email?.split('@')[0] || 'OYUNCU';
+      const photo = document.getElementById('landing-user-photo');
+      if (user.photoURL) { photo.src = user.photoURL; photo.style.display = 'block'; }
+      else { photo.style.display = 'none'; }
+    } else {
+      guestArea.style.display = 'block';
+      userArea.style.display  = 'none';
+    }
+  }
+
+  auth.onAuthStateChanged(user => {
+    updateLandingAuthUI(user);
+    updateGuestBtn();
+  });
 
   STATE.isBattleMode = false;
   STATE.isSprintMode = false;
@@ -4536,6 +5801,7 @@
       descEl.textContent = 'TUR SKORU';
     }
 
+    saveBattleResult(iWon);
     showOverlayButtons(false);
     setTimeout(() => document.getElementById('screen-overlay').classList.add('visible'), 400);
   }

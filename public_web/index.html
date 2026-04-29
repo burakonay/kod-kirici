@@ -4498,6 +4498,10 @@
 
   function requireAuth(action) {
     if (currentUser()) { action(); return; }
+    if (window.Capacitor) {
+      showToast('Bu mod için web sürümünde Google ile giriş yapmalısın 🔒\ndilbaz-a802b.web.app', 3000);
+      return;
+    }
     showToast('Bu mod için Google ile giriş yapmalısın 🔒', 2200);
     flashGoogleBtn();
   }
@@ -4789,17 +4793,28 @@
   }).catch(() => {});
 
   document.getElementById('btn-landing-google').addEventListener('click', () => {
+    if (window.Capacitor) {
+      showToast('Google girişi sadece web sürümünde: dilbaz-a802b.web.app', 3500);
+      return;
+    }
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => {
-      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-        // Popup bloke — redirect ile dene
-        auth.signInWithRedirect(provider).catch(() => {});
-      } else if (err.code === 'auth/operation-not-allowed') {
-        showToast('Firebase Console\'dan Google girişini aktif et!', 3000);
-      } else {
-        showToast('Giriş hatası: ' + err.code, 2500);
-      }
-    });
+    showToast('Google giriş penceresi açılıyor...', 1500);
+    auth.signInWithPopup(provider)
+      .then(result => {
+        if (result && result.user) updateLandingAuthUI(result.user);
+      })
+      .catch(err => {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+          showToast('Popup bloke — sayfa yönlendiriliyor...', 1800);
+          auth.signInWithRedirect(provider).catch(() => {});
+        } else if (err.code === 'auth/cancelled-popup-request') {
+          // Birden fazla popup isteği — yoksay
+        } else if (err.code === 'auth/operation-not-allowed') {
+          showToast('Firebase Console\'dan Google girişini aktif et!', 3000);
+        } else {
+          showToast('Giriş hatası: ' + err.code, 2500);
+        }
+      });
   });
 
   document.getElementById('btn-landing-logout').addEventListener('click', () => {

@@ -1,5 +1,11 @@
 {
-  "appId": "com.dilbaz.app",
-  "appName": "Dilbaz",
-  "webDir": "www"
+  "appId": "com.kodkirici.app",
+  "appName": "Kod Kırıcı",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
 }
