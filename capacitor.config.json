@@ -1,11 +1,17 @@
 {
   "appId": "com.kodkirici.app",
-  "appName": "Kod Kırıcı",
+  "appName": "Harfiyat",
   "webDir": "www",
   "android": {
     "allowMixedContent": true
   },
   "server": {
     "androidScheme": "https"
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
   }
 }

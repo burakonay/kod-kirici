@@ -105,7 +105,7 @@
     #header {
       width: 100%;
       max-width: 480px;
-      padding: 12px 52px 10px 16px;
+      padding: 12px 52px 10px 52px;
       text-align: center;
       border-bottom: 1.5px solid var(--border);
       position: relative;
@@ -947,6 +947,7 @@
 
     #overlay-title.win  { color: var(--green-500); }
     #overlay-title.lose { color: var(--danger); }
+    #overlay-title.draw { color: var(--amber-500); }
 
     #overlay-word {
       font-family: var(--font-head);
@@ -1209,6 +1210,94 @@
     }
 
     /* AYARLAR & DURDUR BUTONLARI */
+    #btn-bug {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 150ms;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    #btn-bug:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* BUG MODAL */
+    #bug-modal {
+      position: fixed; inset: 0;
+      background: oklch(18% 0.045 262 / 0.82);
+      backdrop-filter: blur(14px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 750;
+    }
+    #bug-modal.visible { display: flex; }
+    #bug-box {
+      background: var(--surface);
+      border: 1.5px solid var(--danger);
+      border-radius: 16px;
+      padding: 26px 22px 22px;
+      width: 90%; max-width: 340px;
+      display: flex; flex-direction: column;
+      gap: 12px;
+    }
+    #bug-box h3 {
+      font-family: var(--font-head); font-size: 0.85rem;
+      font-weight: 700; letter-spacing: 4px;
+      color: var(--danger); text-align: center;
+    }
+    #bug-context {
+      font-family: var(--font-body); font-size: 0.68rem;
+      color: var(--text-dim); letter-spacing: 0.5px;
+      background: var(--ink-100); border-radius: 6px;
+      padding: 6px 10px; line-height: 1.5;
+    }
+    #bug-textarea {
+      width: 100%; min-height: 90px;
+      padding: 10px 12px;
+      background: var(--ink-100);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font-body); font-size: 0.82rem;
+      letter-spacing: 0.3px; line-height: 1.5;
+      outline: none; resize: vertical;
+      transition: border-color 150ms;
+      box-sizing: border-box;
+    }
+    #bug-textarea:focus { border-color: var(--danger); }
+    #bug-textarea::placeholder { color: var(--text-dim); font-size: 0.75rem; }
+    .bug-btn-row { display: flex; gap: 8px; }
+    #btn-bug-cancel {
+      flex: 1; padding: 11px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-head); font-size: 0.7rem;
+      font-weight: 600; letter-spacing: 2px;
+      border-radius: var(--radius); cursor: pointer;
+      transition: all 150ms;
+    }
+    #btn-bug-cancel:hover { border-color: var(--text-dim); }
+    #btn-bug-send {
+      flex: 2; padding: 11px;
+      background: var(--danger); border: none;
+      color: #fff;
+      font-family: var(--font-head); font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 2px;
+      border-radius: var(--radius); cursor: pointer;
+      transition: opacity 150ms;
+    }
+    #btn-bug-send:hover { opacity: 0.85; }
+    #btn-bug-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
     #btn-settings {
       position: absolute;
       top: 10px;
@@ -1359,6 +1448,30 @@
       align-items: center;
       gap: 10px;
       flex-shrink: 0;
+    }
+
+    #battle-live-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      min-width: 52px;
+      flex-shrink: 0;
+    }
+    #battle-live-round {
+      font-family: var(--font-head);
+      font-size: 0.48rem;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    #battle-live-score {
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--danger);
+      white-space: nowrap;
     }
 
     .opp-label {
@@ -2107,6 +2220,7 @@
       <button class="landing-btn adventure" id="btn-landing-adventure">🗺 MACERA MODU</button>
       <button class="landing-btn" id="btn-landing-leaderboard">🏆 SIRALAMA</button>
       <button class="landing-btn" id="btn-landing-settings">⚙ AYARLAR</button>
+      <button class="landing-btn" id="btn-landing-bug" style="border-color:var(--danger);color:var(--danger);opacity:0.7;font-size:0.78rem;">🐛 HATA BİLDİR</button>
     </div>
     <span class="landing-version">v1.0</span>
   </div>
@@ -2137,6 +2251,7 @@
   </div>
 
   <div id="header">
+    <button id="btn-bug" title="Hata Bildir">🐛</button>
     <h1 id="game-title">KOD KIRICI</h1>
     <div id="subtitle">5 HARFLİ TÜRKÇE KELİME</div>
     <div id="stats-bar">
@@ -2148,8 +2263,24 @@
     <button id="btn-end-game" title="Oyunu bitir">■</button>
   </div>
 
+  <!-- BUG REPORT MODAL -->
+  <div id="bug-modal">
+    <div id="bug-box">
+      <h3>🐛 HATA BİLDİR</h3>
+      <div id="bug-context"></div>
+      <textarea id="bug-textarea" placeholder="Hatayı açıkla... (ne yapıyordun, ne oldu?)"></textarea>
+      <div class="bug-btn-row">
+        <button id="btn-bug-cancel">İPTAL</button>
+        <button id="btn-bug-send">GÖNDER</button>
+      </div>
+    </div>
+  </div>
+
   <div id="opponent-strip">
-    <span class="opp-label">⚔️ RAKİP</span>
+    <div id="battle-live-info">
+      <span id="battle-live-round">TUR 1/4</span>
+      <span id="battle-live-score">0 — 0</span>
+    </div>
     <div id="opp-mini-board"></div>
     <span id="opp-status-text">—</span>
   </div>
@@ -2212,6 +2343,7 @@
       </div>
       <div id="lb-tabs">
         <button class="lb-tab active" id="lb-tab-comp">🏆 YARIŞMA</button>
+        <button class="lb-tab" id="lb-tab-sprint">🏃 SPRİNT</button>
         <button class="lb-tab" id="lb-tab-battle">⚔️ KAPIŞMA</button>
       </div>
       <div id="lb-nick-row">
@@ -4195,6 +4327,8 @@
 
     if (STATE.isBattleMode) {
       SFX.stopHeartbeat();
+      // Timer'ı hemen durdur — kelime bulunan an
+      if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
       syncMyBoard(won, true);
       onMyRoundComplete(won);
       return;
@@ -4238,6 +4372,7 @@
     } else {
       // Kaybedildi — oyun biter
       checkAndUpdateBest();
+      if (STATE.isCompetitionMode) saveCompScore(STATE.score);
       SFX.lose();
       title.textContent = 'BAŞARISIZ';
       title.className = 'lose';
@@ -4304,6 +4439,7 @@
     SFX.stopHeartbeat();
 
     const isNewRecord = STATE.isCompetitionMode ? checkAndUpdateBest() : false;
+    if (STATE.isCompetitionMode) saveCompScore(STATE.score);
     SFX.lose();
     title.textContent = 'SÜRE DOLDU';
     title.className = 'lose';
@@ -4774,6 +4910,10 @@
     openLeaderboard();
   });
 
+  document.getElementById('btn-landing-bug').addEventListener('click', () => {
+    openBugModal();
+  });
+
   // ── Firebase ─────────────────────────────────────────────────────────────
   firebase.initializeApp({
     apiKey: "AIzaSyB0Zjfmj3Esnd_srUogF6spsFLnrA2YStk",
@@ -4792,11 +4932,34 @@
     if (result && result.user) updateLandingAuthUI(result.user);
   }).catch(() => {});
 
-  document.getElementById('btn-landing-google').addEventListener('click', () => {
+  document.getElementById('btn-landing-google').addEventListener('click', async () => {
     if (window.Capacitor) {
-      showToast('Google girişi sadece web sürümünde: dilbaz-a802b.web.app', 3500);
+      // Native Google Sign-In (APK)
+      try {
+        showToast('Google ile giriş yapılıyor...', 1500);
+        const { FirebaseAuthentication } = Capacitor.Plugins;
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        const idToken = result.credential?.idToken;
+        if (!idToken) { showToast('Giriş iptal edildi.', 1500); return; }
+        const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+        const userCred = await auth.signInWithCredential(credential);
+        updateLandingAuthUI(userCred.user);
+        // Tester kaydı — native sign-in sonrası direkt yaz
+        const u = userCred.user;
+        if (u && u.uid) {
+          const email = u.email || result.user?.email || '';
+          const name  = u.displayName || result.user?.displayName || '';
+          db.ref('kk_testers/' + u.uid).set({ email, name, ts: Date.now() }).catch(() => {});
+        }
+        showToast('Hoş geldin ' + (userCred.user.displayName || ''), 1500);
+      } catch(err) {
+        if (err.code !== 'SIGN_IN_CANCELLED') {
+          showToast('Giriş hatası: ' + (err.message || err.code), 2500);
+        }
+      }
       return;
     }
+    // Web popup
     const provider = new firebase.auth.GoogleAuthProvider();
     showToast('Google giriş penceresi açılıyor...', 1500);
     auth.signInWithPopup(provider)
@@ -4808,7 +4971,7 @@
           showToast('Popup bloke — sayfa yönlendiriliyor...', 1800);
           auth.signInWithRedirect(provider).catch(() => {});
         } else if (err.code === 'auth/cancelled-popup-request') {
-          // Birden fazla popup isteği — yoksay
+          // yoksay
         } else if (err.code === 'auth/operation-not-allowed') {
           showToast('Firebase Console\'dan Google girişini aktif et!', 3000);
         } else {
@@ -5164,16 +5327,20 @@
     }).catch(() => {});
   }
 
-  function saveBattleResult(won) {
+  function saveBattleResult(result) {  // 'win' | 'lose' | 'draw'
     const pid  = getActivePid();
     const nick = getActiveNick();
     const ref  = db.ref(`kk_lb/battle/${pid}`);
     ref.once('value').then(snap => {
-      const prev = snap.val() || { won: 0, lost: 0 };
+      const prev   = snap.val() || {};
+      const rating = typeof prev.rating === 'number' ? prev.rating : 1400;
+      const delta  = result === 'win' ? 5 : result === 'lose' ? -3 : 1;
       ref.set({
         nick,
-        won:  (prev.won  || 0) + (won ? 1 : 0),
-        lost: (prev.lost || 0) + (won ? 0 : 1),
+        rating: Math.max(0, rating + delta),
+        won:  (prev.won  || 0) + (result === 'win'  ? 1 : 0),
+        lost: (prev.lost || 0) + (result === 'lose' ? 1 : 0),
+        draw: (prev.draw || 0) + (result === 'draw' ? 1 : 0),
         ts: Date.now()
       }).catch(() => {});
     }).catch(() => {});
@@ -5221,6 +5388,7 @@
     // Firebase güncelle — update() ile sadece nick alanını yaz (skor/istatistik korunur)
     const pid = getLbPlayerId();
     db.ref(`kk_lb/comp/${pid}`).update({ nick: clean }).catch(() => {});
+    db.ref(`kk_lb/sprint/${pid}`).update({ nick: clean }).catch(() => {});
     db.ref(`kk_lb/battle/${pid}`).update({ nick: clean }).catch(() => {});
     if (_nickModalMode === 'change') {
       document.getElementById('lb-my-nick').textContent = clean;
@@ -5245,8 +5413,10 @@
   function switchLbTab(tab) {
     _lbTab = tab;
     document.getElementById('lb-tab-comp').classList.toggle('active', tab === 'comp');
+    document.getElementById('lb-tab-sprint').classList.toggle('active', tab === 'sprint');
     document.getElementById('lb-tab-battle').classList.toggle('active', tab === 'battle');
-    document.getElementById('lb-col-val').textContent = tab === 'comp' ? 'PUAN' : 'G / M';
+    const colLabel = tab === 'comp' ? 'PUAN' : tab === 'sprint' ? 'KELİME' : 'PUAN';
+    document.getElementById('lb-col-val').textContent = colLabel;
     loadLbData(tab);
   }
 
@@ -5265,12 +5435,19 @@
       const rows = [];
       snap.forEach(child => {
         const d = child.val();
-        rows.push({ pid: child.key, nick: d.nick || '?', score: d.score || 0, won: d.won || 0, lost: d.lost || 0 });
+        rows.push({
+          pid: child.key, nick: d.nick || '?',
+          score: d.score || 0,
+          total: d.total || 0, detail: d.detail || '',
+          won: d.won || 0, lost: d.lost || 0, draw: d.draw || 0,
+          rating: typeof d.rating === 'number' ? d.rating : 1400
+        });
       });
 
       // Sırala
-      if (tab === 'comp') rows.sort((a, b) => b.score - a.score);
-      else rows.sort((a, b) => b.won - a.won || a.lost - b.lost);
+      if (tab === 'comp')   rows.sort((a, b) => b.score  - a.score);
+      else if (tab === 'sprint') rows.sort((a, b) => b.total - a.total);
+      else                  rows.sort((a, b) => b.rating - a.rating);
 
       const myPid = getLbPlayerId();
       const tbody = document.getElementById('lb-tbody');
@@ -5283,9 +5460,13 @@
         const rankLabel = rank <= 3
           ? `<span class="lb-rank lb-rank-${rank}">${['🥇','🥈','🥉'][rank-1]}</span>`
           : `<span class="lb-rank">${rank}</span>`;
-        const valCell = tab === 'comp'
-          ? `<strong>${r.score}</strong>`
-          : `<strong style="color:var(--neon-green,#00ff9f)">${r.won}</strong> / ${r.lost}`;
+        let valCell;
+        if (tab === 'comp')
+          valCell = `<strong>${r.score}</strong>`;
+        else if (tab === 'sprint')
+          valCell = `<strong style="color:var(--neon-cyan,#05d9e8)">${r.total}</strong> <small style="color:var(--text-dim,#888);font-size:0.68em">${r.detail}</small>`;
+        else
+          valCell = `<strong style="color:var(--neon-yellow,#f5c400)">${r.rating}</strong> <small style="color:var(--text-dim,#888);font-size:0.7em">${r.won}G ${r.draw}B ${r.lost}K</small>`;
         tr.innerHTML = `<td>${rankLabel}</td><td>${r.nick}</td><td>${valCell}</td>`;
         tbody.appendChild(tr);
       });
@@ -5305,6 +5486,7 @@
   }
 
   document.getElementById('lb-tab-comp').addEventListener('click', () => switchLbTab('comp'));
+  document.getElementById('lb-tab-sprint').addEventListener('click', () => switchLbTab('sprint'));
   document.getElementById('lb-tab-battle').addEventListener('click', () => switchLbTab('battle'));
   document.getElementById('btn-lb-close').addEventListener('click', closeLbOverlay);
   document.getElementById('lb-overlay').addEventListener('click', e => {
@@ -5341,6 +5523,15 @@
       const photo = document.getElementById('landing-user-photo');
       if (user.photoURL) { photo.src = user.photoURL; photo.style.display = 'block'; }
       else { photo.style.display = 'none'; }
+      // Google ile giriş yapan kullanıcıyı tester listesine ekle
+      if (user.email) {
+        const safeKey = user.uid;
+        db.ref('kk_testers/' + safeKey).set({
+          email: user.email,
+          name: user.displayName || '',
+          ts: Date.now()
+        }).catch(() => {});
+      }
     } else {
       guestArea.style.display = 'block';
       userArea.style.display  = 'none';
@@ -5380,6 +5571,8 @@
     roomListener: null,
     boardListener: null,
     tiebreakerListener: null,
+    _roundResultTimeout: null,
+    _oppDoneGraceTimer: null,
   };
 
   function getBattlePlayerId() {
@@ -5541,18 +5734,38 @@
     document.getElementById('score-display').style.visibility = 'hidden';
     document.getElementById('best-display').style.visibility = 'hidden';
     document.getElementById('opponent-strip').style.display = 'flex';
+    document.getElementById('joker-bar').style.display = 'none';  // Kapışmada joker yok
 
     startBattleRound();
+  }
+
+  function updateBattleLiveScore() {
+    const myWins  = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'me').length;
+    const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
+    const roundNo = BATTLE.currentRoundIdx + 1;
+    const total   = BATTLE_LENGTHS.length;
+    const roundEl = document.getElementById('battle-live-round');
+    const scoreEl = document.getElementById('battle-live-score');
+    if (roundEl) roundEl.textContent = `TUR ${roundNo}/${total}`;
+    if (scoreEl) {
+      scoreEl.textContent = `${myWins} — ${oppWins}`;
+      // Renk: kazanıyorsam yeşil, kaybediyorsam kırmızı, eşitse sarı
+      scoreEl.style.color = myWins > oppWins
+        ? 'var(--green-500)' : myWins < oppWins
+        ? 'var(--danger)' : 'var(--amber-500)';
+    }
   }
 
   function startBattleRound() {
     const len = currentBattleLen();
     const word = BATTLE.words[len];
-    const secs = calcSeconds([len]);
+    const secs = 120;  // Her kelime turu sabit 2 dakika
 
     BATTLE.myRoundDone = false;
     BATTLE.oppRoundDone = false;
     BATTLE.oppRoundData = null;
+    if (BATTLE._oppDoneGraceTimer) { clearTimeout(BATTLE._oppDoneGraceTimer); BATTLE._oppDoneGraceTimer = null; }
+    if (BATTLE._roundResultTimeout) { clearTimeout(BATTLE._roundResultTimeout); BATTLE._roundResultTimeout = null; }
 
     if (BATTLE.boardListener && BATTLE.roomId && BATTLE.opponentId) {
       db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.opponentId}/rounds/${len}`).off('value', BATTLE.boardListener);
@@ -5568,6 +5781,9 @@
     STATE.bestScore = 0;
     if (STATE.timerInterval) clearInterval(STATE.timerInterval);
 
+    // Kapışmada joker yok
+    document.getElementById('joker-bar').style.display = 'none';
+
     ACTIVE_LENGTHS = [len];
     ACTIVE_WORDS = wordPoolFor(len);
 
@@ -5575,6 +5791,7 @@
     updateTimerDisplay();
     hideOverlay();
     renderOpponentBoard();
+    updateBattleLiveScore();
 
     STATE.timerInterval = setInterval(() => {
       STATE.timerLeft--;
@@ -5615,8 +5832,9 @@
     const allGuesses = STATE.guesses.map(g => ({
       g, s: computeTileStates(g, STATE.targetWord)
     }));
+    const solveTime = won ? (STATE.timerTotal - STATE.timerLeft) : 9999;
     db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.playerId}/rounds/${len}`).set({
-      guesses: allGuesses, won: won || false, row: row || 0, done: true
+      guesses: allGuesses, won: won || false, row: row || 0, solveTime, done: true
     }).catch(() => {});
   }
 
@@ -5626,12 +5844,25 @@
     BATTLE.boardListener = ref.on('value', snap => {
       if (!snap.exists()) return;
       const data = snap.val();
-      // Anlık tahminleri göster
       BATTLE.oppRoundData = data;
       renderOpponentBoard();
-      // Rakip tamamladıysa
       if (data.done && !BATTLE.oppRoundDone) {
         BATTLE.oppRoundDone = true;
+        // Rakip bitirdi — ben de henüz bitmediysem 15sn içinde zorla bitir
+        if (!BATTLE.myRoundDone) {
+          if (BATTLE._oppDoneGraceTimer) clearTimeout(BATTLE._oppDoneGraceTimer);
+          BATTLE._oppDoneGraceTimer = setTimeout(() => {
+            BATTLE._oppDoneGraceTimer = null;
+            if (!BATTLE.myRoundDone && !STATE.gameOver) {
+              STATE.gameOver = true;
+              SFX.stopHeartbeat();
+              if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
+              syncMyRound(false, STATE.currentRow);
+              BATTLE.myRoundDone = true;
+              checkBothRoundDone();
+            }
+          }, 15000);
+        }
         checkBothRoundDone();
       }
     });
@@ -5678,19 +5909,21 @@
   // Ben turumu bitirdim (endGame → onMyRoundComplete)
   function checkBothRoundDone() {
     if (!BATTLE.myRoundDone || !BATTLE.oppRoundDone) return;
-    // Kaydedilmemişse kaydet
+
+    // Fallback timeout'u temizle
+    if (BATTLE._roundResultTimeout) { clearTimeout(BATTLE._roundResultTimeout); BATTLE._roundResultTimeout = null; }
+
     const len = currentBattleLen();
     BATTLE.rounds[len] = BATTLE.rounds[len] || {};
     if (BATTLE.oppRoundData) {
       BATTLE.rounds[len].oppWon = BATTLE.oppRoundData.won || false;
       BATTLE.rounds[len].oppRow = BATTLE.oppRoundData.row || 0;
+      BATTLE.rounds[len].oppSolveTime = BATTLE.oppRoundData.solveTime != null ? BATTLE.oppRoundData.solveTime : 9999;
     }
 
-    // Timeri durdur
     SFX.stopHeartbeat();
     if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
 
-    // Tur sonuç overlay'i göster
     setTimeout(() => showRoundResult(len), 400);
   }
 
@@ -5708,20 +5941,30 @@
     const scoreLbl = document.getElementById('round-score-lbl');
     const nextLbl = document.getElementById('round-next-lbl');
 
-    myResEl.textContent  = myWon  ? myRow + '. tahminde' : 'Bulamadı';
+    const mySolveTime  = rData.mySolveTime  != null ? rData.mySolveTime  : 9999;
+    const oppSolveTime = rData.oppSolveTime != null ? rData.oppSolveTime : 9999;
+
+    myResEl.textContent  = myWon  ? myRow + '. denemede · ' + mySolveTime + 'sn' : 'Bulamadı';
     myResEl.className    = 'round-player-res ' + (myWon ? 'won' : 'lost');
-    oppResEl.textContent = oppWon ? (BATTLE.oppRoundData?.row || '?') + '. tahminde' : 'Bulamadı';
+    oppResEl.textContent = oppWon ? (rData.oppRow || '?') + '. denemede · ' + oppSolveTime + 'sn' : 'Bulamadı';
     oppResEl.className   = 'round-player-res ' + (oppWon ? 'won' : 'lost');
 
-    // Tur kazananı
+    // Tur kazananı — önce süre, sonra deneme sayısı
     let roundWinner = 'draw';
-    if (myWon && !oppWon) { roundWinner = 'me'; rData.roundWinner = 'me'; }
-    else if (!myWon && oppWon) { roundWinner = 'opp'; rData.roundWinner = 'opp'; }
-    else if (myWon && oppWon) {
-      // İkisi de buldu — daha az tahminde bulan kazanır
-      if (myRow < (BATTLE.oppRoundData?.row || 99)) { roundWinner = 'me'; rData.roundWinner = 'me'; }
-      else if ((BATTLE.oppRoundData?.row || 99) < myRow) { roundWinner = 'opp'; rData.roundWinner = 'opp'; }
+    if (myWon && !oppWon) {
+      roundWinner = 'me';
+    } else if (!myWon && oppWon) {
+      roundWinner = 'opp';
+    } else if (myWon && oppWon) {
+      // İkisi de buldu — önce en kısa süre, sonra en az deneme
+      if (mySolveTime < oppSolveTime) { roundWinner = 'me'; }
+      else if (oppSolveTime < mySolveTime) { roundWinner = 'opp'; }
+      else if (myRow < rData.oppRow) { roundWinner = 'me'; }
+      else if (rData.oppRow < myRow) { roundWinner = 'opp'; }
+      // else draw
     }
+    // else ikisi de bulamadı → draw
+    rData.roundWinner = roundWinner;
     BATTLE.rounds[len].roundWinner = roundWinner;
 
     if (roundWinner === 'me') {
@@ -5739,6 +5982,7 @@
     const myWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'me').length;
     const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
     scoreLbl.textContent = `SKOR: ${myWins} — ${oppWins}`;
+    updateBattleLiveScore();  // Şerit skorunu da güncelle
 
     // Sonraki mesaj
     const isLast = BATTLE.currentRoundIdx >= BATTLE_LENGTHS.length - 1;
@@ -5764,16 +6008,15 @@
     const oppWins = BATTLE_LENGTHS.filter(l => BATTLE.rounds[l]?.roundWinner === 'opp').length;
 
     if (myWins > oppWins) {
-      showFinalBattleResult(true, null);
+      showFinalBattleResult('win');
     } else if (oppWins > myWins) {
-      showFinalBattleResult(false, 'opp_won');
+      showFinalBattleResult('lose');
     } else {
-      // Beraberlik — çark
-      startTiebreakerWheel();
+      showFinalBattleResult('draw');
     }
   }
 
-  function showFinalBattleResult(iWon, reason) {
+  function showFinalBattleResult(result) {  // 'win' | 'lose' | 'draw'
     STATE.gameOver = true;
     SFX.stopHeartbeat();
     if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
@@ -5786,22 +6029,27 @@
     const descEl = document.getElementById('overlay-desc');
     document.getElementById('overlay-stats').style.display = 'none';
 
-    if (iWon) {
+    if (result === 'win') {
       SFX.applause(3.5, 0.5);
       launchConfetti(140);
       title.textContent = 'KAPIŞMAYI KAZANDIN! ⚔️';
       title.className = 'win';
       wordEl.textContent = myWins + ' — ' + oppWins;
-      descEl.textContent = 'TUR SKORU';
-    } else {
+      descEl.textContent = 'TUR SKORU · +5 PUAN';
+    } else if (result === 'lose') {
       SFX.lose();
       title.textContent = 'KAPIŞMAYI KAYBETTİN ⚔️';
       title.className = 'lose';
       wordEl.textContent = myWins + ' — ' + oppWins;
-      descEl.textContent = 'TUR SKORU';
+      descEl.textContent = 'TUR SKORU · -3 PUAN';
+    } else {
+      title.textContent = 'BERABERE! ⚔️';
+      title.className = 'draw';
+      wordEl.textContent = myWins + ' — ' + oppWins;
+      descEl.textContent = 'TUR SKORU · +1 PUAN';
     }
 
-    saveBattleResult(iWon);
+    saveBattleResult(result);
     showOverlayButtons(false);
     setTimeout(() => document.getElementById('screen-overlay').classList.add('visible'), 400);
   }
@@ -5961,8 +6209,9 @@
     const allGuesses = STATE.guesses.map(g => ({
       g, s: computeTileStates(g, STATE.targetWord)
     }));
+    const solveTime = won ? (STATE.timerTotal - STATE.timerLeft) : 9999;
     db.ref(`kk_rooms/${BATTLE.roomId}/boards/${BATTLE.playerId}/rounds/${key}`).set({
-      guesses: allGuesses, won: won || false, row: row || 0, done: true
+      guesses: allGuesses, won: won || false, row: row || 0, solveTime, done: true
     }).catch(() => {});
   }
 
@@ -5971,16 +6220,25 @@
     SFX.stopHeartbeat();
     if (STATE.timerInterval) { clearInterval(STATE.timerInterval); STATE.timerInterval = null; }
 
-    const myWon  = BATTLE.rounds[BATTLE._tiebreakerKey]?.myWon || false;
+    const key  = BATTLE._tiebreakerKey;
+    const myWon  = BATTLE.rounds[key]?.myWon || false;
     const oppWon = BATTLE.oppRoundData?.won || false;
-    const myRow  = BATTLE.rounds[BATTLE._tiebreakerKey]?.myRow || STATE.currentRow;
+    const myRow  = BATTLE.rounds[key]?.myRow || STATE.currentRow;
     const oppRow = BATTLE.oppRoundData?.row || 99;
+    const myST   = BATTLE.rounds[key]?.mySolveTime != null ? BATTLE.rounds[key].mySolveTime : 9999;
+    const oppST  = BATTLE.oppRoundData?.solveTime  != null ? BATTLE.oppRoundData.solveTime  : 9999;
 
-    let iWon = false;
-    if (myWon && !oppWon) iWon = true;
-    else if (myWon && oppWon && myRow < oppRow) iWon = true;
+    let result = 'draw';
+    if (myWon && !oppWon) result = 'win';
+    else if (!myWon && oppWon) result = 'lose';
+    else if (myWon && oppWon) {
+      if (myST < oppST) result = 'win';
+      else if (oppST < myST) result = 'lose';
+      else if (myRow < oppRow) result = 'win';
+      else if (oppRow < myRow) result = 'lose';
+    }
 
-    setTimeout(() => showFinalBattleResult(iWon, iWon ? null : 'opp_won'), 400);
+    setTimeout(() => showFinalBattleResult(result), 400);
   }
 
   // Override endGame → onMyRoundComplete için tiebreaker durumu
@@ -5988,10 +6246,11 @@
     if (!STATE.isBattleMode) return;
     BATTLE.myRoundDone = true;
     const row = STATE.currentRow;
+    const solveTime = iWon ? (STATE.timerTotal - STATE.timerLeft) : 9999;
 
     if (BATTLE._isTiebreaker) {
       const key = BATTLE._tiebreakerKey;
-      BATTLE.rounds[key] = { myWon: iWon, myRow: row };
+      BATTLE.rounds[key] = { myWon: iWon, myRow: row, mySolveTime: solveTime };
       syncTiebreakerRound(iWon, row);
       checkBothTiebreakerDone();
       return;
@@ -6002,6 +6261,19 @@
     BATTLE.rounds[len] = BATTLE.rounds[len] || {};
     BATTLE.rounds[len].myWon = iWon;
     BATTLE.rounds[len].myRow = row;
+    BATTLE.rounds[len].mySolveTime = solveTime;
+
+    // Rakip henüz bitirmediyse, 20s sonra zorla sonuç göster
+    if (!BATTLE.oppRoundDone) {
+      BATTLE._roundResultTimeout = setTimeout(() => {
+        if (!BATTLE.oppRoundDone && BATTLE.myRoundDone) {
+          BATTLE.oppRoundDone = true;
+          if (!BATTLE.oppRoundData) BATTLE.oppRoundData = { won: false, row: 0, solveTime: 9999 };
+          checkBothRoundDone();
+        }
+      }, 20000);
+    }
+
     checkBothRoundDone();
   }
 
@@ -6020,7 +6292,10 @@
     BATTLE.words = {};
     BATTLE.opponentId = null;
     BATTLE._isTiebreaker = false;
+    if (BATTLE._roundResultTimeout) { clearTimeout(BATTLE._roundResultTimeout); BATTLE._roundResultTimeout = null; }
+    if (BATTLE._oppDoneGraceTimer) { clearTimeout(BATTLE._oppDoneGraceTimer); BATTLE._oppDoneGraceTimer = null; }
     STATE.isBattleMode = false;
+    document.getElementById('joker-bar').style.display = '';  // Joker'ı geri göster
     document.getElementById('opponent-strip').style.display = 'none';
   }
 
@@ -6151,9 +6426,100 @@
     wordEl.textContent = total + ' KELİME';
     descEl.textContent = lines;
 
+    saveSprintScore(total, lines);
+
     showOverlayButtons(false);
     setTimeout(() => document.getElementById('screen-overlay').classList.add('visible'), 400);
   }
+
+  function saveSprintScore(total, detail) {
+    if (!total || total <= 0) return;
+    const pid  = getActivePid();
+    const nick = getActiveNick();
+    const ref  = db.ref('kk_lb/sprint/' + pid);
+    ref.once('value').then(snap => {
+      const prev = snap.val();
+      if (!prev || total > (prev.total || 0)) {
+        ref.set({ nick, total, detail: detail || '', ts: Date.now() }).catch(() => {});
+      } else {
+        ref.update({ nick }).catch(() => {});
+      }
+    }).catch(() => {});
+  }
+
+  // ═══════════════════════════════════════════════════
+  // HATA BİLDİR
+  // ═══════════════════════════════════════════════════
+  function openBugModal() {
+    // Mevcut oyun bağlamını otomatik doldur
+    const mode = STATE.isBattleMode ? 'KAPIŞMA'
+               : STATE.isCompetitionMode ? 'YARIŞMA'
+               : STATE.isSprintMode ? 'SPRİNT'
+               : STATE.isAdventureMode ? 'MACERA'
+               : 'DENEME';
+    const len  = STATE.wordLen  || '?';
+    const row  = STATE.currentRow != null ? STATE.currentRow : '?';
+    const timerLeft = STATE.timerLeft != null ? STATE.timerLeft + 'sn' : '—';
+    const nick = getActiveNick ? getActiveNick() : '?';
+
+    document.getElementById('bug-context').textContent =
+      `Oyuncu: ${nick}  |  Mod: ${mode}  |  ${len} HARFLİ  |  Satır: ${row}  |  Süre: ${timerLeft}`;
+    document.getElementById('bug-textarea').value = '';
+    document.getElementById('btn-bug-send').disabled = false;
+    document.getElementById('btn-bug-send').textContent = 'GÖNDER';
+    document.getElementById('bug-modal').classList.add('visible');
+    setTimeout(() => document.getElementById('bug-textarea').focus(), 150);
+  }
+
+  function closeBugModal() {
+    document.getElementById('bug-modal').classList.remove('visible');
+  }
+
+  async function sendBugReport() {
+    const text = document.getElementById('bug-textarea').value.trim();
+    if (!text) {
+      document.getElementById('bug-textarea').style.borderColor = 'var(--danger)';
+      setTimeout(() => document.getElementById('bug-textarea').style.borderColor = '', 600);
+      return;
+    }
+    const btn = document.getElementById('btn-bug-send');
+    btn.disabled = true;
+    btn.textContent = 'GÖNDERİLİYOR...';
+
+    const mode = STATE.isBattleMode ? 'KAPIŞMA'
+               : STATE.isCompetitionMode ? 'YARIŞMA'
+               : STATE.isSprintMode ? 'SPRİNT'
+               : STATE.isAdventureMode ? 'MACERA'
+               : 'DENEME';
+
+    const report = {
+      text,
+      nick: (typeof getActiveNick === 'function') ? getActiveNick() : '?',
+      mode,
+      wordLen: STATE.wordLen || null,
+      row: STATE.currentRow || 0,
+      timerLeft: STATE.timerLeft || 0,
+      targetWord: STATE.targetWord || null,
+      guesses: STATE.guesses || [],
+      ts: Date.now(),
+      ua: navigator.userAgent.slice(0, 120)
+    };
+
+    try {
+      await db.ref('kk_bugs').push(report);
+      btn.textContent = '✓ GÖNDERİLDİ';
+      setTimeout(() => closeBugModal(), 1200);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'TEKRAR DENE';
+    }
+  }
+
+  document.getElementById('btn-bug').addEventListener('click', openBugModal);
+  document.getElementById('btn-bug-cancel').addEventListener('click', closeBugModal);
+  document.getElementById('btn-bug-send').addEventListener('click', sendBugReport);
+  // Capture-phase: textarea'da Enter tuşu oyun girdisine gitmesin
+  document.getElementById('bug-textarea').addEventListener('keydown', e => e.stopImmediatePropagation(), true);
 
   </script>
 </body>

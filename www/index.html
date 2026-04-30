@@ -4792,11 +4792,27 @@
     if (result && result.user) updateLandingAuthUI(result.user);
   }).catch(() => {});
 
-  document.getElementById('btn-landing-google').addEventListener('click', () => {
+  document.getElementById('btn-landing-google').addEventListener('click', async () => {
     if (window.Capacitor) {
-      showToast('Google girişi sadece web sürümünde: dilbaz-a802b.web.app', 3500);
+      // Native Google Sign-In (APK)
+      try {
+        showToast('Google ile giriş yapılıyor...', 1500);
+        const { FirebaseAuthentication } = Capacitor.Plugins;
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        const idToken = result.credential?.idToken;
+        if (!idToken) { showToast('Giriş iptal edildi.', 1500); return; }
+        const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+        const userCred = await auth.signInWithCredential(credential);
+        updateLandingAuthUI(userCred.user);
+        showToast('Hoş geldin ' + (userCred.user.displayName || ''), 1500);
+      } catch(err) {
+        if (err.code !== 'SIGN_IN_CANCELLED') {
+          showToast('Giriş hatası: ' + (err.message || err.code), 2500);
+        }
+      }
       return;
     }
+    // Web popup
     const provider = new firebase.auth.GoogleAuthProvider();
     showToast('Google giriş penceresi açılıyor...', 1500);
     auth.signInWithPopup(provider)
@@ -4808,7 +4824,7 @@
           showToast('Popup bloke — sayfa yönlendiriliyor...', 1800);
           auth.signInWithRedirect(provider).catch(() => {});
         } else if (err.code === 'auth/cancelled-popup-request') {
-          // Birden fazla popup isteği — yoksay
+          // yoksay
         } else if (err.code === 'auth/operation-not-allowed') {
           showToast('Firebase Console\'dan Google girişini aktif et!', 3000);
         } else {
