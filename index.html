@@ -22,14 +22,15 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       /* Typography */
-      --font-head: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
-      --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-head:     "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+      --font-body:     "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-wordmark: "Space Grotesk", var(--font-head);
 
       /* Ink (neutral) */
       --ink-0:   oklch(100% 0 0);
@@ -57,13 +58,14 @@
       --locked:    oklch(55% 0.015 260);
 
       /* Semantics */
-      --bg:       var(--ink-50);
-      --surface:  var(--ink-0);
-      --border:   var(--ink-200);
-      --text:     var(--ink-900);
-      --text-dim: var(--ink-400);
-      --primary:  var(--cyan-600);
-      --danger:   var(--magenta-600);
+      --bg:            var(--ink-50);
+      --surface:       var(--ink-0);
+      --border:        var(--ink-900);   /* koyu kenarlık — Stitch tasarım dili */
+      --border-subtle: var(--ink-200);   /* boş tile / ince ayraçlar */
+      --text:          var(--ink-900);
+      --text-dim:      var(--ink-400);
+      --primary:       var(--cyan-600);
+      --danger:        var(--magenta-600);
 
       /* Component */
       --tile-size: 62px;
@@ -83,6 +85,9 @@
       --ink-500: oklch(72% 0.025 255);
       --ink-700: oklch(86% 0.015 255);
       --ink-900: oklch(96% 0.01 258);
+      /* Dark modda border tersine döner: UI kenarlıklar açık olur */
+      --border:        var(--ink-200);
+      --border-subtle: oklch(33% 0.035 260);
     }
 
     html { height: 100%; }
@@ -110,23 +115,25 @@
       border-bottom: 1.5px solid var(--border);
       position: relative;
       background: var(--surface);
+      box-shadow: 0 1px 0 var(--border-subtle);
     }
 
     #game-title {
-      font-family: var(--font-head);
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 6px;
-      color: var(--text);
+      font-family: var(--font-wordmark);
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: var(--primary);
+      text-transform: uppercase;
     }
 
     #subtitle {
-      font-family: var(--font-body);
-      font-size: 0.7rem;
+      font-family: var(--font-head);
+      font-size: 0.58rem;
       letter-spacing: 3px;
       color: var(--primary);
-      opacity: 0.8;
-      margin-top: 2px;
+      margin-top: 3px;
+      text-transform: uppercase;
     }
 
     #stats-bar {
@@ -240,13 +247,14 @@
       grid-template-columns: repeat(3, 1fr);
       background: var(--ink-100);
       border-radius: var(--radius);
+      border: 1.5px solid var(--border);
       padding: 4px;
       gap: 4px;
       width: 100%;
     }
 
     .mode-tab {
-      padding: 9px 2px;
+      padding: 10px 2px;
       background: transparent;
       border: 1.5px solid transparent;
       color: var(--text-dim);
@@ -397,16 +405,14 @@
     }
 
     #setup-box h2 {
-      font-family: var(--font-head);
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-family: var(--font-wordmark);
+      font-size: 1.1rem;
+      font-weight: 800;
       letter-spacing: 4px;
       color: var(--primary);
     }
 
     #btn-settings-from-setup {
-      position: absolute;
-      right: 0;
       background: transparent;
       border: 1.5px solid var(--border);
       color: var(--text-dim);
@@ -617,8 +623,8 @@
     .tile {
       width: var(--tile-size);
       height: var(--tile-size);
-      border: 1.5px solid var(--border);
-      background: var(--surface);
+      border: 1.5px solid var(--border-subtle);
+      background: var(--ink-50);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -634,7 +640,13 @@
     }
 
     .tile.filled {
+      border-color: var(--border);
+      background: var(--surface);
+    }
+    /* Aktif satır (yazılan) */
+    .tile.active-cursor {
       border-color: var(--primary);
+      border-width: 2px;
     }
 
     .tile.joker-revealed {
@@ -907,8 +919,8 @@
     #screen-overlay {
       position: fixed;
       inset: 0;
-      background: oklch(18% 0.045 262 / 0.5);
-      backdrop-filter: blur(8px);
+      background: oklch(18% 0.045 262 / 0.65);
+      backdrop-filter: blur(12px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -926,7 +938,7 @@
     #overlay-box {
       background: var(--surface);
       border: 1.5px solid var(--border);
-      box-shadow: 0 8px 40px oklch(18% 0.045 262 / 0.14);
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.85);
       padding: 36px 40px;
       text-align: center;
       max-width: 340px;
@@ -1138,9 +1150,9 @@
       flex: 1;
       min-width: 0;
       height: var(--key-height, 54px);
-      background: var(--ink-100);
+      background: var(--surface);
       border: 1.5px solid var(--border);
-      color: var(--ink-700);
+      color: var(--ink-900);
       font-family: var(--font-head);
       font-size: 0.88rem;
       font-weight: 600;
@@ -1165,11 +1177,11 @@
     }
 
     .key[data-key="enter"] {
-      background: var(--danger);
-      border-color: var(--danger);
+      background: var(--primary);
+      border-color: var(--border);
       color: var(--ink-0);
       font-size: 0.52rem;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .key.correct {
@@ -1404,9 +1416,9 @@
       font-family: var(--font-body); font-size: 0.68rem;
       color: var(--text-dim); letter-spacing: 0.3px;
     }
-    .srow-main.cyan  { color: var(--neon-cyan, #05d9e8); }
-    .srow-main.green { color: var(--neon-green, #00ff9f); }
-    .srow-main.amber { color: var(--neon-yellow, #f5c400); }
+    .srow-main.cyan  { color: var(--cyan-500); }
+    .srow-main.green { color: var(--green-500); }
+    .srow-main.amber { color: var(--amber-500); }
 
     /* AYARLAR OVERLAY */
     #settings-overlay {
@@ -1875,7 +1887,7 @@
     .lb-rank-2 { color: var(--ink-400); font-weight: 700; }
     .lb-rank-3 { color: #cd7f32; font-weight: 700; }
     .lb-me td { background: oklch(68% 0.16 150 / 0.06); }
-    .lb-me td:first-child { border-left: 3px solid var(--neon-green,#00ff9f); }
+    .lb-me td:first-child { border-left: 3px solid var(--green-500); }
 
     /* Yarışma alt-sekmeleri */
     #comp-subtabs {
@@ -1998,79 +2010,110 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       z-index: 600;
-      padding: 32px 20px;
-      gap: 0;
-      transition: opacity 350ms ease, transform 350ms ease;
+      padding: 40px 24px 28px;
+      max-width: 480px;
+      margin: 0 auto;
+      left: 50%; transform: translateX(-50%);
+      transition: opacity 350ms ease;
     }
     #landing-screen.hidden {
       opacity: 0;
       pointer-events: none;
-      transform: translateY(-12px);
     }
+
+    /* Brand area */
+    .landing-brand { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .brand-mark {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5px; width: 44px; height: 44px; margin-bottom: 4px;
+    }
+    .brand-mark span {
+      display: block; border: 1.5px solid var(--border);
+      border-radius: 3px;
+    }
+    .bm-1 { background: var(--primary); }
+    .bm-2 { background: var(--green-500); }
+    .bm-3 { background: var(--amber-500); }
+    .bm-4 { background: var(--border); }
+
     .landing-logo {
-      font-family: var(--font-head);
-      font-size: 3rem;
-      font-weight: 700;
+      font-family: var(--font-wordmark);
+      font-size: 2.8rem;
+      font-weight: 800;
       letter-spacing: 10px;
       color: var(--text);
-      margin-bottom: 6px;
-      animation: glitch 6s ease-in-out infinite;
-    }
-    .landing-sub {
-      font-family: var(--font-body);
-      font-size: 0.68rem;
-      letter-spacing: 4px;
-      color: var(--primary);
-      opacity: 0.8;
-      margin-bottom: 40px;
       text-transform: uppercase;
     }
+    .landing-sub {
+      font-family: var(--font-head);
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    /* Decorative tiles */
+    .landing-tiles {
+      display: flex; gap: 6px;
+    }
+    .landing-tile {
+      width: 48px; height: 48px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;
+    }
+    .lt-green  { background: var(--green-500);  color: #fff; }
+    .lt-amber  { background: var(--amber-500);  color: #fff; }
+    .lt-blank  { background: var(--ink-100);     color: var(--ink-400); }
+    .lt-dark   { background: var(--locked);      color: #fff; }
+
+    /* Auth + buttons */
+    .landing-auth { width: 100%; display: flex; flex-direction: column; gap: 10px; }
     .landing-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      display: flex; flex-direction: column; gap: 8px;
       width: 100%;
-      max-width: 320px;
     }
     .landing-btn {
       width: 100%;
-      padding: 15px 20px;
+      padding: 14px 20px;
       border-radius: var(--radius);
       font-family: var(--font-head);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 3px;
       cursor: pointer;
       border: 1.5px solid var(--border);
       background: var(--surface);
       color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 180ms;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform 100ms, box-shadow 100ms;
     }
-    .landing-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--cyan-100); }
+    .landing-btn:active { transform: translateY(1px); }
+    .landing-btn:hover  { box-shadow: 3px 3px 0 var(--border); }
     .landing-btn.primary {
       background: var(--primary);
-      border-color: var(--primary);
+      border-color: var(--border);
       color: #fff;
     }
-    .landing-btn.primary:hover { background: var(--cyan-600); border-color: var(--cyan-600); color: #fff; }
     .landing-btn.adventure {
-      background: var(--green-500);
-      border-color: var(--green-600);
-      color: #fff;
-    }
-    .landing-btn.adventure:hover { background: var(--green-600); border-color: var(--green-600); color: #fff; }
-    .landing-btn.google {
       background: var(--surface);
       border-color: var(--border);
-      color: var(--text);
+      color: var(--green-500);
     }
-    .landing-btn.google:hover { border-color: var(--cyan-500); }
+    .landing-btn.google {
+      background: oklch(95% 0.04 215);
+      border-color: var(--border);
+      color: var(--primary);
+    }
+    .landing-btn[id="btn-landing-bug"] {
+      border-color: var(--border);
+      color: var(--ink-400);
+      font-size: 0.7rem;
+      padding: 10px;
+    }
     .google-icon {
       width: 20px; height: 20px;
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%234285F4' d='M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.9 3 4 11.9 4 23s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.2-3z'/%3E%3Cpath fill='%23FBBC05' d='M6.3 14.7l7 5.1C15 16.1 19.1 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 16 3 9.1 7.9 6.3 14.7z'/%3E%3Cpath fill='%2334A853' d='M24 43c5.8 0 10.7-1.9 14.3-5.2l-6.6-5.4C29.8 34.3 27 35.2 24 35.2c-5.8 0-10.7-3.9-12.5-9.3l-7 5.4C7.6 39.1 15.2 43 24 43z'/%3E%3Cpath fill='%23EA4335' d='M44.5 20H24v8.5h11.8c-.9 2.5-2.6 4.6-4.8 6.1l6.6 5.4C41.6 36.3 44.5 30.2 44.5 23c0-1-.1-2-.2-3z' /%3E%3C/svg%3E") center/contain no-repeat;
@@ -2294,21 +2337,38 @@
 
   <!-- ══ LANDING PAGE ══ -->
   <div id="landing-screen">
-    <div class="landing-logo">HARFİYAT</div>
-    <div class="landing-sub">Türkçe Kelime Tahmin Oyunu</div>
-    <div class="landing-buttons">
-      <!-- Giriş yapılmamışken -->
-      <div id="landing-auth-guest">
+
+    <!-- Marka alanı -->
+    <div class="landing-brand">
+      <div class="brand-mark">
+        <span class="bm-1"></span><span class="bm-2"></span>
+        <span class="bm-3"></span><span class="bm-4"></span>
+      </div>
+      <div class="landing-logo">HARFİYAT</div>
+      <div class="landing-sub">Türkçe Kelime Tahmin Oyunu</div>
+    </div>
+
+    <!-- Dekoratif tile'lar -->
+    <div class="landing-tiles">
+      <div class="landing-tile lt-green">H</div>
+      <div class="landing-tile lt-blank">A</div>
+      <div class="landing-tile lt-amber">R</div>
+      <div class="landing-tile lt-blank">F</div>
+      <div class="landing-tile lt-dark">İ</div>
+    </div>
+
+    <!-- Auth -->
+    <div class="landing-auth">
+      <div id="landing-auth-guest" style="display:flex;flex-direction:column;gap:8px">
         <button class="landing-btn google" id="btn-landing-google">
           <span class="google-icon"></span>
-          Google ile Giriş Yap
+          GOOGLE İLE GİRİŞ
         </button>
-        <button class="landing-btn" id="btn-landing-guest" style="background:transparent;border-color:var(--border);color:var(--text-dim);">👤 Misafir Olarak Devam Et</button>
-        <div id="guest-nick-row" style="display:none;text-align:center;font-size:0.75rem;color:var(--text-dim);margin-top:-8px;letter-spacing:1px;">
-          <span id="guest-nick-label"></span> · <button id="btn-change-guest-nick" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.75rem;letter-spacing:1px;padding:0;">DEĞİŞTİR</button>
+        <button class="landing-btn" id="btn-landing-guest">👤 MİSAFİR OLARAK DEVAM</button>
+        <div id="guest-nick-row" style="display:none;text-align:center;font-size:0.72rem;color:var(--text-dim);letter-spacing:1px;">
+          <span id="guest-nick-label"></span> · <button id="btn-change-guest-nick" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.72rem;letter-spacing:1px;padding:0;">DEĞİŞTİR</button>
         </div>
       </div>
-      <!-- Giriş yapılmışken -->
       <div id="landing-auth-user" style="display:none">
         <div id="landing-user-row">
           <img id="landing-user-photo" src="" alt="" referrerpolicy="no-referrer">
@@ -2316,14 +2376,29 @@
           <button id="btn-landing-logout">Çıkış Yap</button>
         </div>
       </div>
-      <button class="landing-btn primary" id="btn-landing-play">▶ OYNA</button>
-      <button class="landing-btn adventure" id="btn-landing-adventure">🗺 MACERA MODU</button>
-      <button class="landing-btn" id="btn-landing-leaderboard">🏆 SIRALAMA</button>
-      <button class="landing-btn" id="btn-landing-stats">📊 İSTATİSTİK</button>
-      <button class="landing-btn" id="btn-landing-settings">⚙ AYARLAR</button>
-      <button class="landing-btn" id="btn-landing-bug" style="border-color:var(--danger);color:var(--danger);opacity:0.7;font-size:0.78rem;">🐛 HATA BİLDİR</button>
     </div>
-    <span class="landing-version">v1.0</span>
+
+    <!-- Ana butonlar -->
+    <div class="landing-buttons">
+      <button class="landing-btn primary" id="btn-landing-play">▶ &nbsp;OYNA</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="landing-btn adventure" id="btn-landing-adventure">🗺 MACERA</button>
+        <button class="landing-btn" id="btn-landing-leaderboard">🏆 SIRALAMA</button>
+        <button class="landing-btn" id="btn-landing-stats">📊 İSTATİSTİK</button>
+        <button class="landing-btn" id="btn-landing-settings">⚙ AYARLAR</button>
+      </div>
+      <button class="landing-btn" id="btn-landing-bug">🐛 HATA BİLDİR</button>
+    </div>
+
+    <!-- Footer -->
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;border-top:1.5px solid var(--border-subtle);padding-top:12px">
+      <span style="font-family:var(--font-head);font-size:0.55rem;letter-spacing:3px;color:var(--text-dim)">V 1.0</span>
+      <div style="display:flex;align-items:center;gap:6px;border:1.5px solid var(--border-subtle);border-radius:20px;padding:4px 12px;background:var(--surface)">
+        <span style="font-size:0.9rem">🪙</span>
+        <span style="font-family:var(--font-head);font-size:0.6rem;letter-spacing:2px" id="landing-coin-display">25</span>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ MACERA MODU OVERLAY ══ -->
@@ -2518,6 +2593,10 @@
 
   <div id="screen-overlay">
     <div id="overlay-box">
+      <div class="brand-mark" style="margin-bottom:4px">
+        <span class="bm-1"></span><span class="bm-2"></span>
+        <span class="bm-3"></span><span class="bm-4"></span>
+      </div>
       <div id="overlay-title"></div>
       <div id="overlay-word"></div>
       <div id="overlay-desc"></div>
@@ -3969,6 +4048,8 @@
   }
   function updateCoinDisplay() {
     document.getElementById('stat-coins').textContent = STATE.coins;
+    const lc = document.getElementById('landing-coin-display');
+    if (lc) lc.textContent = STATE.coins;
   }
   function updateHintButton() {
     const btn = document.getElementById('btn-hint');
@@ -5643,9 +5724,9 @@
         if (tab === 'comp')
           valCell = `<strong>${r.score}</strong>`;
         else if (tab === 'sprint')
-          valCell = `<strong style="color:var(--neon-cyan,#05d9e8)">${r.total}</strong> <small style="color:var(--text-dim,#888);font-size:0.68em">${r.detail}</small>`;
+          valCell = `<strong style="color:var(--cyan-500)">${r.total}</strong> <small style="color:var(--text-dim);font-size:0.68em">${r.detail}</small>`;
         else
-          valCell = `<strong style="color:var(--neon-yellow,#f5c400)">${r.rating}</strong> <small style="color:var(--text-dim,#888);font-size:0.7em">${r.won}G ${r.draw}B ${r.lost}K</small>`;
+          valCell = `<strong style="color:var(--amber-500)">${r.rating}</strong> <small style="color:var(--text-dim);font-size:0.7em">${r.won}G ${r.draw}B ${r.lost}K</small>`;
         tr.innerHTML = `<td>${rankLabel}</td><td>${r.nick}</td><td>${valCell}</td>`;
         tbody.appendChild(tr);
       });
