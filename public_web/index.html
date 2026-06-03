@@ -5777,10 +5777,13 @@
       let claimed = false;
       try {
         const txResult = await db.ref(`kk_queue/${opponentId}`).transaction(current => {
-          if (!current || current.roomId) return; // abort — başkası zaten claim etti
+          if (current === null) return null; // iyimser null geçişi — sunucu değeri gelsin, tekrar çalışsın
+          if (current.roomId) return;        // abort — başkası zaten claim etti
           return { ...current, roomId };
         });
-        claimed = txResult.committed;
+        claimed = txResult.committed
+               && txResult.snapshot.exists()
+               && txResult.snapshot.val().roomId === roomId;
       } catch(e) { /* network hatası → guest yoluna düş */ }
 
       if (claimed) {
@@ -5855,10 +5858,13 @@
       let claimed = false;
       try {
         const tx = await db.ref(`kk_queue/${retryId}`).transaction(cur => {
-          if (!cur || cur.roomId) return;
+          if (cur === null) return null; // iyimser null geçişi — sunucu değeri gelsin, tekrar çalışsın
+          if (cur.roomId) return;        // abort — başkası zaten claim etti
           return { ...cur, roomId };
         });
-        claimed = tx.committed;
+        claimed = tx.committed
+               && tx.snapshot.exists()
+               && tx.snapshot.val().roomId === roomId;
       } catch(e) {}
 
       if (!claimed || BATTLE.roomId) return;
